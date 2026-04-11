@@ -1,4 +1,4 @@
--- Oversimplified by Ege | v1
+-- Oversimplified by Ege | v1.1
 
 local Oversimplified={Theme={Bg=Color3.fromRGB(24,24,27),Border=Color3.fromRGB(55,55,60),Text=Color3.fromRGB(228,228,231),Active=Color3.fromRGB(99,102,241),Inactive=Color3.fromRGB(40,40,45),SliderBg=Color3.fromRGB(45,45,50),DarkerBg=Color3.fromRGB(18,18,20)}}
 local TS,UIS=game:GetService("TweenService"),game:GetService("UserInputService")
