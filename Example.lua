@@ -1,4 +1,4 @@
--- [[ Oversimplified Library ]]
+-- [[ 1. Load the Oversimplified Library ]]
 local libraryLink = "https://raw.githubusercontent.com/aV7gP2hQw9TzK1d/Oversimplified/refs/heads/main/Library.lua"
 local Oversimplified = loadstring(game:HttpGet(libraryLink))()
 
@@ -50,9 +50,8 @@ end)
 -- ========================================== --
 --       TAB 2: DYNAMIC UPDATES TESTING      
 -- ========================================== --
-DynamicTab:CreateParagraph("API Methods", "Click the buttons below to see the UI elements above them change dynamically via code.")
-
 -- Create the elements and save them to variables
+local DynamicParagraph = DynamicTab:CreateParagraph("API Methods", "Click the buttons below to see the UI elements change dynamically via code.")
 local StatusLabel = DynamicTab:CreateLabel("Status: Waiting for update...")
 local HealthSlider = DynamicTab:CreateSlider("Health Visualizer", 0, 100, 50, function(val) end)
 local PlayerDropdown = DynamicTab:CreateDropdown("Players in Game", {"Loading..."}, "Loading...", function(val) end)
@@ -60,6 +59,14 @@ local PlayerDropdown = DynamicTab:CreateDropdown("Players in Game", {"Loading...
 DynamicTab:CreateLabel("--- Update Controls ---")
 
 -- Buttons to trigger the updates
+DynamicTab:CreateButton("Update Paragraph (Title & Desc)", function()
+    DynamicParagraph:Set("Updated Methods", "The paragraph has been successfully updated via the script!")
+end)
+
+DynamicTab:CreateButton("Update Paragraph (Title Only)", function()
+    DynamicParagraph:Set("Title Updated!")
+end)
+
 DynamicTab:CreateButton("Update the Label above", function()
     StatusLabel:Set("Status: Updated at " .. os.date("%X"))
 end)
