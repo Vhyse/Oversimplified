@@ -1,11 +1,11 @@
--- [[ Oversimplified UI Library v2.4 - Universal Fade Patch ]] --
+-- [[ Oversimplified UI Library v2.5 - Asynchronous Tab Animations ]] --
 local Oversimplified = {}
 
 Oversimplified.Theme = {
     Bg = Color3.fromRGB(24, 24, 27),        
     Border = Color3.fromRGB(55, 55, 60),    
     Text = Color3.fromRGB(228, 228, 231),   
-    Active = Color3.fromRGB(99, 102, 241),  
+    Active = Color3.fromRGB(99, 102, 241),  -- Title and Active Tab Color
     Inactive = Color3.fromRGB(40, 40, 45),  
     Good = Color3.fromRGB(74, 222, 128),    
     SliderBg = Color3.fromRGB(45, 45, 50),
@@ -40,7 +40,6 @@ local function FadeUI(element, show, duration)
     local tInfo = TweenInfo.new(duration, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out)
     
     local function tweenObj(obj)
-        -- 1. Save the original transparencies the first time we see the object
         if not obj:GetAttribute("OrigSaved") then
             obj:SetAttribute("OrigSaved", true)
             if obj:IsA("GuiObject") then obj:SetAttribute("OrigBg", obj.BackgroundTransparency) end
@@ -49,14 +48,12 @@ local function FadeUI(element, show, duration)
             if obj:IsA("ScrollingFrame") then obj:SetAttribute("OrigScroll", obj.ScrollBarImageTransparency) end
         end
         
-        -- 2. Calculate target transparencies
         local props = {}
         if obj:GetAttribute("OrigBg") then props.BackgroundTransparency = show and obj:GetAttribute("OrigBg") or 1 end
         if obj:GetAttribute("OrigText") then props.TextTransparency = show and obj:GetAttribute("OrigText") or 1 end
         if obj:GetAttribute("OrigStroke") then props.Transparency = show and obj:GetAttribute("OrigStroke") or 1 end
         if obj:GetAttribute("OrigScroll") then props.ScrollBarImageTransparency = show and obj:GetAttribute("OrigScroll") or 1 end
         
-        -- 3. Apply changes (Instant or Tween)
         if next(props) then 
             if duration == 0 then
                 for k, v in pairs(props) do obj[k] = v end
@@ -76,7 +73,6 @@ function Oversimplified:CreateWindow(titleText)
 
     local ScreenGui = Instance.new("ScreenGui"); ScreenGui.Name = guiName; ScreenGui.Parent = CoreGui
     
-    -- Reverted back to standard Frame to bypass executor CanvasGroup bugs
     local MainFrame = Instance.new("Frame"); MainFrame.Size = UDim2.new(0, 520, 0, 380); MainFrame.Position = UDim2.new(0.5, -260, 0.5, -190); MainFrame.BackgroundColor3 = self.Theme.Bg; MainFrame.Parent = ScreenGui
     Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 6)
     local MainStroke = Instance.new("UIStroke", MainFrame); MainStroke.Color = self.Theme.Border; MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -133,13 +129,24 @@ function Oversimplified:CreateWindow(titleText)
             TabScroll.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 15)
         end)
 
-        -- TAB SWITCHING FADE
+        -- ASYNCHRONOUS TAB SWITCHING FADE
         TabBtn.MouseButton1Click:Connect(function()
             if WindowObj.CurrentTab == tabName or isSwitchingTab then return end
             isSwitchingTab = true
             
+            -- Instantly tween the buttons so there is zero delay for the user
+            for _, btn in ipairs(TabContainer:GetChildren()) do 
+                if btn:IsA("TextButton") then 
+                    TweenService:Create(btn, TweenInfo.new(0.2, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {BackgroundColor3 = Oversimplified.Theme.Inactive}):Play()
+                end 
+            end
+            TweenService:Create(TabBtn, TweenInfo.new(0.2, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {BackgroundColor3 = Oversimplified.Theme.Active}):Play()
+
+            -- Find the currently active scroll frame and fade it out
             local currentScroll = nil
-            for _, child in ipairs(ContentContainer:GetChildren()) do if child:IsA("ScrollingFrame") and child.Visible then currentScroll = child break end end
+            for _, child in ipairs(ContentContainer:GetChildren()) do 
+                if child:IsA("ScrollingFrame") and child.Visible then currentScroll = child break end 
+            end
             
             if currentScroll then
                 FadeUI(currentScroll, false, 0.15)
@@ -147,8 +154,8 @@ function Oversimplified:CreateWindow(titleText)
                 currentScroll.Visible = false
             end
 
-            for _, btn in ipairs(TabContainer:GetChildren()) do if btn:IsA("TextButton") then btn.BackgroundColor3 = Oversimplified.Theme.Inactive end end
-            TabScroll.Visible = true; TabBtn.BackgroundColor3 = Oversimplified.Theme.Active
+            -- Swap visibility and fade the new one in
+            TabScroll.Visible = true
             WindowObj.CurrentTab = tabName
 
             FadeUI(TabScroll, false, 0) 
