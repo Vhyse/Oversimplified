@@ -5,7 +5,7 @@ local function MakeDraggable(f) local d,di,ds,sp f.InputBegan:Connect(function(i
 local function FadeUI(e,s,d) local t=TweenInfo.new(d,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out) local function tw(o) if not o:GetAttribute("OS") then o:SetAttribute("OS",true) if o:IsA("GuiObject") then o:SetAttribute("OBg",o.BackgroundTransparency) end if o:IsA("TextLabel") or o:IsA("TextButton") or o:IsA("TextBox") then o:SetAttribute("OTx",o.TextTransparency) end if o:IsA("UIStroke") then o:SetAttribute("OSt",o.Transparency) end if o:IsA("ScrollingFrame") then o:SetAttribute("OSc",o.ScrollBarImageTransparency) end end local p={} if o:GetAttribute("OBg") then p.BackgroundTransparency=s and o:GetAttribute("OBg") or 1 end if o:GetAttribute("OTx") then p.TextTransparency=s and o:GetAttribute("OTx") or 1 end if o:GetAttribute("OSt") then p.Transparency=s and o:GetAttribute("OSt") or 1 end if o:GetAttribute("OSc") then p.ScrollBarImageTransparency=s and o:GetAttribute("OSc") or 1 end if next(p) then if d==0 then for k,v in pairs(p) do o[k]=v end else TS:Create(o,t,p):Play() end end end tw(e) for _,c in ipairs(e:GetDescendants()) do tw(c) end end
 function Oversimplified:CreateWindow(tTxt)
     if CG:FindFirstChild("OS_UI") then CG.OS_UI:Destroy() end
-    local SG=Instance.new("ScreenGui",CG) SG.Name="OS_UI"
+    local SG=Instance.new("ScreenGui",CG) SG.Name="OS_UI" SG.Enabled=false
     local MF=Instance.new("Frame",SG) MF.Size=UDim2.new(0,520,0,380) MF.Position=UDim2.new(0.5,-260,0.5,-190) MF.BackgroundColor3=self.Theme.Bg MF.Visible=false
     Instance.new("UICorner",MF).CornerRadius=UDim.new(0,6) Instance.new("UIStroke",MF).Color=self.Theme.Border MF.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border MakeDraggable(MF)
     local Ti=Instance.new("TextLabel",MF) Ti.Size=UDim2.new(1,0,0,30) Ti.BackgroundTransparency=1 Ti.Text="  "..tTxt Ti.TextColor3=self.Theme.Active Ti.Font=Enum.Font.GothamBold Ti.TextSize=14 Ti.TextXAlignment=Enum.TextXAlignment.Left
@@ -14,7 +14,7 @@ function Oversimplified:CreateWindow(tTxt)
     local TL=Instance.new("UIListLayout",TC) TL.Padding=UDim.new(0,5) TL.HorizontalAlignment=Enum.HorizontalAlignment.Center TL.SortOrder=Enum.SortOrder.LayoutOrder
     Instance.new("UIPadding",TC).PaddingTop=UDim.new(0,2) TC.UIPadding.PaddingBottom=UDim.new(0,2)
     local CC=Instance.new("Frame",MF) CC.Size=UDim2.new(1,-135,1,-40) CC.Position=UDim2.new(0,130,0,35) CC.BackgroundTransparency=1
-    task.defer(function() FadeUI(MF,false,0) MF.Visible=true FadeUI(MF,true,0.4) end)
+    task.delay(0.15,function() FadeUI(MF,false,0) SG.Enabled=true MF.Visible=true FadeUI(MF,true,0.4) end)
     local iv,it=true,false
     UIS.InputBegan:Connect(function(i,g) if not g and i.KeyCode==Enum.KeyCode.Insert and not it then it=true iv=not iv if iv then FadeUI(MF,false,0) MF.Visible=true FadeUI(MF,true,0.3) task.wait(0.3) else FadeUI(MF,false,0.3) task.wait(0.3) MF.Visible=false end it=false end end)
     local WO={CT=nil} local isS=false
@@ -66,8 +66,7 @@ function Oversimplified:CreateWindow(tTxt)
             local C=Instance.new("Frame",TSc) C.Size=UDim2.new(1,-14,0,34) C.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
             local Lb=Instance.new("TextLabel",C) Lb.Size=UDim2.new(0.5,0,1,0) Lb.Position=UDim2.new(0,10,0,0) Lb.BackgroundTransparency=1 Lb.Text=tx Lb.TextColor3=Oversimplified.Theme.Text Lb.Font=Enum.Font.GothamMedium Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left
             local BB=Instance.new("TextButton",C) BB.Size=UDim2.new(0,80,0,24) BB.Position=UDim2.new(1,-90,0.5,-12) BB.BackgroundColor3=Oversimplified.Theme.DarkerBg BB.TextColor3=Oversimplified.Theme.Active BB.Font=Enum.Font.GothamBold BB.TextSize=12 BB.Text=dk and dk.Name or "None" BB.AutoButtonColor=false Instance.new("UICorner",BB).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",BB).Color=Oversimplified.Theme.Border BB.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
-            local cK,ls=dk,false
-            BB.MouseButton1Click:Connect(function() ls=true BB.Text="..." local cn cn=UIS.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.Keyboard then ls=false if i.KeyCode==Enum.KeyCode.Backspace then cK=nil BB.Text="None" else cK=i.KeyCode BB.Text=cK.Name end cn:Disconnect() end end) end)
+            local cK,ls=dk,false BB.MouseButton1Click:Connect(function() ls=true BB.Text="..." local cn cn=UIS.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.Keyboard then ls=false if i.KeyCode==Enum.KeyCode.Backspace then cK=nil BB.Text="None" else cK=i.KeyCode BB.Text=cK.Name end cn:Disconnect() end end) end)
             UIS.InputBegan:Connect(function(i,g) if not ls and not g and cK and i.KeyCode==cK then cb(cK) end end)
         end
         function E:CreateDropdown(tx,op,df,cb)
@@ -95,11 +94,7 @@ function Oversimplified:CreateWindow(tTxt)
                 local sV=Instance.new("TextLabel",sF) sV.Size=UDim2.new(0,25,1,0) sV.Position=UDim2.new(1,-25,0,0) sV.BackgroundTransparency=1 sV.Text=tostring(math.floor(dV)) sV.TextColor3=Oversimplified.Theme.Text sV.Font=Enum.Font.Gotham sV.TextSize=11
                 local dg=false local function sU(i) local pc=math.clamp((i.Position.X-sB.AbsolutePosition.X)/sB.AbsoluteSize.X,0,1) local vl=math.floor(pc*255) TS:Create(sFi,TweenInfo.new(0.05),{Size=UDim2.new(pc,0,1,0)}):Play() sV.Text=tostring(vl) if cN=="R" then r=vl elseif cN=="G" then g=vl else b=vl end uC() end
                 sB.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 then dg=true sU(i) end end) UIS.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 then dg=false end end) UIS.InputChanged:Connect(function(i) if dg and i.UserInputType==Enum.UserInputType.MouseMovement then sU(i) end end)
-            end
-            cCS("R",r,Color3.fromRGB(255,75,75)) cCS("G",g,Color3.fromRGB(75,255,75)) cCS("B",b,Color3.fromRGB(75,75,255))
-        end
-        return E
-    end
-    return WO
-end
-return Oversimplified
+            end cCS("R",r,Color3.fromRGB(255,75,75)) cCS("G",g,Color3.fromRGB(75,255,75)) cCS("B",b,Color3.fromRGB(75,75,255))
+        end return E
+    end return WO
+end return Oversimplified
