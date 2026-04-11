@@ -16,20 +16,20 @@ function Oversimplified:CreateWindow(tTxt)
     local TL=Instance.new("UIListLayout",TC) TL.Padding=UDim.new(0,5) TL.HorizontalAlignment=Enum.HorizontalAlignment.Center TL.SortOrder=Enum.SortOrder.LayoutOrder
     Instance.new("UIPadding",TC).PaddingTop=UDim.new(0,2) TC.UIPadding.PaddingBottom=UDim.new(0,2)
     local CC=Instance.new("Frame",MF) CC.Size=UDim2.new(1,-135,1,-40) CC.Position=UDim2.new(0,130,0,35) CC.BackgroundTransparency=1
-    local NC=Instance.new("Frame",SG) NC.Size=UDim2.new(0,250,1,-40) NC.Position=UDim2.new(1,-20,0,20) NC.BackgroundTransparency=1
-    local NL=Instance.new("UIListLayout",NC) NL.Padding=UDim.new(0,10) NL.HorizontalAlignment=Enum.HorizontalAlignment.Right NL.VerticalAlignment=Enum.VerticalAlignment.Bottom
+    local NC=Instance.new("Frame",SG) NC.Size=UDim2.new(0,250,1,-40) NC.Position=UDim2.new(1,-270,0,20) NC.BackgroundTransparency=1
+    local NL=Instance.new("UIListLayout",NC) NL.Padding=UDim.new(0,10) NL.HorizontalAlignment=Enum.HorizontalAlignment.Center NL.VerticalAlignment=Enum.VerticalAlignment.Bottom
     task.delay(0.15,function() FadeUI(MF,false,0) SG.Enabled=true MF.Visible=true FadeUI(MF,true,0.4) end)
     local iv,it=true,false
     UIS.InputBegan:Connect(function(i,g) if not g and i.KeyCode==Enum.KeyCode.Insert and not it then it=true iv=not iv if iv then FadeUI(MF,false,0) MF.Visible=true FadeUI(MF,true,0.3) task.wait(0.3) else FadeUI(MF,false,0.3) task.wait(0.3) MF.Visible=false end it=false end end)
     local WO={CT=nil} local isS=false
     function WO:Notify(ti,de,dr)
         dr=dr or 3
-        local NW=Instance.new("Frame",NC) NW.Size=UDim2.new(0,250,0,60) NW.BackgroundTransparency=1 NW.ClipsDescendants=true
-        local NM=Instance.new("Frame",NW) NM.Size=UDim2.new(1,0,1,0) NM.Position=UDim2.new(1,0,0,0) NM.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",NM).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",NM).Color=Oversimplified.Theme.Border NM.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+        local NW=Instance.new("Frame",NC) NW.Size=UDim2.new(1,0,0,60) NW.BackgroundTransparency=1
+        local NM=Instance.new("Frame",NW) NM.Size=UDim2.new(1,0,1,0) NM.Position=UDim2.new(1,270,0,0) NM.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",NM).CornerRadius=UDim.new(0,6) Instance.new("UIStroke",NM).Color=Oversimplified.Theme.Border NM.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
         local NT=Instance.new("TextLabel",NM) NT.Size=UDim2.new(1,-20,0,20) NT.Position=UDim2.new(0,10,0,5) NT.BackgroundTransparency=1 NT.Text=ti NT.TextColor3=Oversimplified.Theme.Active NT.Font=Enum.Font.GothamBold NT.TextSize=13 NT.TextXAlignment=Enum.TextXAlignment.Left
         local ND=Instance.new("TextLabel",NM) ND.Size=UDim2.new(1,-20,0,25) ND.Position=UDim2.new(0,10,0,25) ND.BackgroundTransparency=1 ND.Text=de ND.TextColor3=Oversimplified.Theme.Text ND.Font=Enum.Font.Gotham ND.TextSize=12 ND.TextXAlignment=Enum.TextXAlignment.Left ND.TextWrapped=true
-        TS:Create(NM,TweenInfo.new(0.3,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out),{Position=UDim2.new(0,0,0,0)}):Play()
-        task.delay(dr,function() local t=TS:Create(NM,TweenInfo.new(0.3,Enum.EasingStyle.Cubic,Enum.EasingDirection.In),{Position=UDim2.new(1,0,0,0)}) t:Play() t.Completed:Wait() NW:Destroy() end)
+        TS:Create(NM,TweenInfo.new(0.4,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out),{Position=UDim2.new(0,0,0,0)}):Play()
+        task.delay(dr,function() local t=TS:Create(NM,TweenInfo.new(0.4,Enum.EasingStyle.Cubic,Enum.EasingDirection.In),{Position=UDim2.new(1,270,0,0)}) t:Play() t.Completed:Wait() NW:Destroy() end)
     end
     function WO:CreateTab(tN)
         local TB=Instance.new("TextButton",TC) TB.Size=UDim2.new(1,-16,0,30) TB.BackgroundColor3=self.CT==tN and Oversimplified.Theme.Active or Oversimplified.Theme.Inactive TB.TextColor3=Oversimplified.Theme.Text TB.Font=Enum.Font.GothamMedium TB.TextSize=13 TB.Text=tN TB.AutoButtonColor=false
@@ -40,28 +40,28 @@ function Oversimplified:CreateWindow(tTxt)
         L:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function() TSc.CanvasSize=UDim2.new(0,0,0,L.AbsoluteContentSize.Y+15) end)
         TB.MouseButton1Click:Connect(function() if WO.CT==tN or isS then return end isS=true for _,b in ipairs(TC:GetChildren()) do if b:IsA("TextButton") then TS:Create(b,TweenInfo.new(0.2,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out),{BackgroundColor3=Oversimplified.Theme.Inactive}):Play() end end TS:Create(TB,TweenInfo.new(0.2,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out),{BackgroundColor3=Oversimplified.Theme.Active}):Play() local cS=nil for _,c in ipairs(CC:GetChildren()) do if c:IsA("ScrollingFrame") and c.Visible then cS=c break end end if cS then FadeUI(cS,false,0.15) task.wait(0.15) cS.Visible=false end TSc.Visible=true WO.CT=tN FadeUI(TSc,false,0) FadeUI(TSc,true,0.15) task.wait(0.15) isS=false end)
         if not self.CT then TSc.Visible=true TB.BackgroundColor3=Oversimplified.Theme.Active self.CT=tN end
-        local E={}
+        local E={} local eO=0
         function E:CreateParagraph(ti,de)
-            local C=Instance.new("Frame",TSc) C.Size=UDim2.new(1,-14,0,50) C.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+            local C=Instance.new("Frame",TSc) eO=eO+1 C.LayoutOrder=eO C.Size=UDim2.new(1,-14,0,50) C.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
             local LT=Instance.new("TextLabel",C) LT.Size=UDim2.new(1,-20,0,20) LT.Position=UDim2.new(0,10,0,5) LT.BackgroundTransparency=1 LT.Text=ti LT.TextColor3=Oversimplified.Theme.Active LT.Font=Enum.Font.GothamBold LT.TextSize=13 LT.TextXAlignment=Enum.TextXAlignment.Left
             local LD=Instance.new("TextLabel",C) LD.Size=UDim2.new(1,-20,0,20) LD.Position=UDim2.new(0,10,0,25) LD.BackgroundTransparency=1 LD.Text=de LD.TextColor3=Oversimplified.Theme.Text LD.Font=Enum.Font.Gotham LD.TextSize=12 LD.TextXAlignment=Enum.TextXAlignment.Left LD.TextWrapped=true
         end
         function E:CreateLabel(tx)
-            local Lb=Instance.new("TextLabel",TSc) Lb.Size=UDim2.new(1,-14,0,25) Lb.BackgroundTransparency=1 Lb.TextColor3=Oversimplified.Theme.Text Lb.Font=Enum.Font.GothamBold Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left Lb.Text=tx
+            local Lb=Instance.new("TextLabel",TSc) eO=eO+1 Lb.LayoutOrder=eO Lb.Size=UDim2.new(1,-14,0,25) Lb.BackgroundTransparency=1 Lb.TextColor3=Oversimplified.Theme.Text Lb.Font=Enum.Font.GothamBold Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left Lb.Text=tx
         end
         function E:CreateButton(tx,cb)
-            local B=Instance.new("TextButton",TSc) B.Size=UDim2.new(1,-14,0,34) B.BackgroundColor3=Oversimplified.Theme.Inactive B.TextColor3=Oversimplified.Theme.Text B.Font=Enum.Font.GothamMedium B.TextSize=13 B.Text=tx B.AutoButtonColor=false Instance.new("UICorner",B).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",B).Color=Oversimplified.Theme.Border B.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+            local B=Instance.new("TextButton",TSc) eO=eO+1 B.LayoutOrder=eO B.Size=UDim2.new(1,-14,0,34) B.BackgroundColor3=Oversimplified.Theme.Inactive B.TextColor3=Oversimplified.Theme.Text B.Font=Enum.Font.GothamMedium B.TextSize=13 B.Text=tx B.AutoButtonColor=false Instance.new("UICorner",B).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",B).Color=Oversimplified.Theme.Border B.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
             B.MouseButton1Click:Connect(function() TS:Create(B,TweenInfo.new(0.1),{BackgroundColor3=Oversimplified.Theme.Active}):Play() task.wait(0.1) TS:Create(B,TweenInfo.new(0.1),{BackgroundColor3=Oversimplified.Theme.Inactive}):Play() cb() end)
         end
         function E:CreateToggle(tx,df,cb)
-            local C=Instance.new("TextButton",TSc) C.Size=UDim2.new(1,-14,0,34) C.BackgroundColor3=Oversimplified.Theme.Bg C.Text="" C.AutoButtonColor=false Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+            local C=Instance.new("TextButton",TSc) eO=eO+1 C.LayoutOrder=eO C.Size=UDim2.new(1,-14,0,34) C.BackgroundColor3=Oversimplified.Theme.Bg C.Text="" C.AutoButtonColor=false Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
             local Lb=Instance.new("TextLabel",C) Lb.Size=UDim2.new(1,-60,1,0) Lb.Position=UDim2.new(0,10,0,0) Lb.BackgroundTransparency=1 Lb.Text=tx Lb.TextColor3=Oversimplified.Theme.Text Lb.Font=Enum.Font.GothamMedium Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left
             local Tr=Instance.new("Frame",C) Tr.Size=UDim2.new(0,36,0,18) Tr.Position=UDim2.new(1,-46,0.5,-9) Tr.BackgroundColor3=df and Oversimplified.Theme.Active or Oversimplified.Theme.Inactive Instance.new("UICorner",Tr).CornerRadius=UDim.new(1,0)
             local Ci=Instance.new("Frame",Tr) Ci.Size=UDim2.new(0,14,0,14) Ci.Position=df and UDim2.new(1,-16,0.5,-7) or UDim2.new(0,2,0.5,-7) Ci.BackgroundColor3=Color3.fromRGB(255,255,255) Instance.new("UICorner",Ci).CornerRadius=UDim.new(1,0)
             local st=df C.MouseButton1Click:Connect(function() st=not st cb(st) TS:Create(Tr,TweenInfo.new(0.2),{BackgroundColor3=st and Oversimplified.Theme.Active or Oversimplified.Theme.Inactive}):Play() TS:Create(Ci,TweenInfo.new(0.2),{Position=st and UDim2.new(1,-16,0.5,-7) or UDim2.new(0,2,0.5,-7)}):Play() end)
         end
         function E:CreateSlider(tx,mn,mx,df,cb)
-            local C=Instance.new("Frame",TSc) C.Size=UDim2.new(1,-14,0,50) C.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+            local C=Instance.new("Frame",TSc) eO=eO+1 C.LayoutOrder=eO C.Size=UDim2.new(1,-14,0,50) C.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
             local Lb=Instance.new("TextLabel",C) Lb.Size=UDim2.new(1,-20,0,20) Lb.Position=UDim2.new(0,10,0,5) Lb.BackgroundTransparency=1 Lb.Text=tx Lb.TextColor3=Oversimplified.Theme.Text Lb.Font=Enum.Font.GothamMedium Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left
             local VL=Instance.new("TextLabel",C) VL.Size=UDim2.new(0,50,0,20) VL.Position=UDim2.new(1,-60,0,5) VL.BackgroundTransparency=1 VL.Text=tostring(df) VL.TextColor3=Oversimplified.Theme.Text VL.Font=Enum.Font.GothamMedium VL.TextSize=13 VL.TextXAlignment=Enum.TextXAlignment.Right
             local SB=Instance.new("TextButton",C) SB.Size=UDim2.new(1,-20,0,8) SB.Position=UDim2.new(0,10,0,30) SB.BackgroundColor3=Oversimplified.Theme.SliderBg SB.Text="" SB.AutoButtonColor=false Instance.new("UICorner",SB).CornerRadius=UDim.new(1,0)
@@ -70,20 +70,21 @@ function Oversimplified:CreateWindow(tTxt)
             SB.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 then dg=true us(i) end end) UIS.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 then dg=false end end) UIS.InputChanged:Connect(function(i) if dg and i.UserInputType==Enum.UserInputType.MouseMovement then us(i) end end)
         end
         function E:CreateInput(tx,pl,cb)
-            local C=Instance.new("Frame",TSc) C.Size=UDim2.new(1,-14,0,34) C.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+            local C=Instance.new("Frame",TSc) eO=eO+1 C.LayoutOrder=eO C.Size=UDim2.new(1,-14,0,34) C.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
             local Lb=Instance.new("TextLabel",C) Lb.Size=UDim2.new(0.5,0,1,0) Lb.Position=UDim2.new(0,10,0,0) Lb.BackgroundTransparency=1 Lb.Text=tx Lb.TextColor3=Oversimplified.Theme.Text Lb.Font=Enum.Font.GothamMedium Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left
             local IB=Instance.new("TextBox",C) IB.Size=UDim2.new(0.5,-20,0,24) IB.Position=UDim2.new(0.5,10,0.5,-12) IB.BackgroundColor3=Oversimplified.Theme.DarkerBg IB.TextColor3=Oversimplified.Theme.Text IB.PlaceholderText=pl IB.Font=Enum.Font.Gotham IB.TextSize=12 IB.ClearTextOnFocus=false Instance.new("UICorner",IB).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",IB).Color=Oversimplified.Theme.Border IB.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
             IB.FocusLost:Connect(function() cb(IB.Text) end)
         end
         function E:CreateKeybind(tx,dk,cb)
-            local C=Instance.new("Frame",TSc) C.Size=UDim2.new(1,-14,0,34) C.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+            local C=Instance.new("Frame",TSc) eO=eO+1 C.LayoutOrder=eO C.Size=UDim2.new(1,-14,0,34) C.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
             local Lb=Instance.new("TextLabel",C) Lb.Size=UDim2.new(0.5,0,1,0) Lb.Position=UDim2.new(0,10,0,0) Lb.BackgroundTransparency=1 Lb.Text=tx Lb.TextColor3=Oversimplified.Theme.Text Lb.Font=Enum.Font.GothamMedium Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left
-            local BB=Instance.new("TextButton",C) BB.Size=UDim2.new(0,80,0,24) BB.Position=UDim2.new(1,-90,0.5,-12) BB.BackgroundColor3=Oversimplified.Theme.DarkerBg BB.TextColor3=Oversimplified.Theme.Active BB.Font=Enum.Font.GothamBold BB.TextSize=12 BB.Text=dk and dk.Name or "None" BB.AutoButtonColor=false Instance.new("UICorner",BB).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",BB).Color=Oversimplified.Theme.Border BB.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+            local startText=dk and dk.Name or "None"
+            local BB=Instance.new("TextButton",C) BB.Size=UDim2.new(0,80,0,24) BB.Position=UDim2.new(1,-90,0.5,-12) BB.BackgroundColor3=Oversimplified.Theme.DarkerBg BB.TextColor3=Oversimplified.Theme.Active BB.Font=Enum.Font.GothamBold BB.TextSize=12 BB.Text=startText BB.AutoButtonColor=false Instance.new("UICorner",BB).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",BB).Color=Oversimplified.Theme.Border BB.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
             local cK,ls=dk,false BB.MouseButton1Click:Connect(function() ls=true BB.Text="..." local cn cn=UIS.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.Keyboard then ls=false if i.KeyCode==Enum.KeyCode.Backspace then cK=nil BB.Text="None" else cK=i.KeyCode BB.Text=cK.Name end cn:Disconnect() end end) end)
             UIS.InputBegan:Connect(function(i,g) if not ls and not g and cK and i.KeyCode==cK then cb(cK) end end)
         end
         function E:CreateDropdown(tx,op,df,cb)
-            local C=Instance.new("Frame",TSc) C.Size=UDim2.new(1,-14,0,34) C.BackgroundColor3=Oversimplified.Theme.Bg C.ClipsDescendants=true Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+            local C=Instance.new("Frame",TSc) eO=eO+1 C.LayoutOrder=eO C.Size=UDim2.new(1,-14,0,34) C.BackgroundColor3=Oversimplified.Theme.Bg C.ClipsDescendants=true Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
             local DB=Instance.new("TextButton",C) DB.Size=UDim2.new(1,0,0,34) DB.BackgroundTransparency=1 DB.Text="" DB.AutoButtonColor=false
             local Lb=Instance.new("TextLabel",DB) Lb.Size=UDim2.new(0.5,0,1,0) Lb.Position=UDim2.new(0,10,0,0) Lb.BackgroundTransparency=1 Lb.Text=tx Lb.TextColor3=Oversimplified.Theme.Text Lb.Font=Enum.Font.GothamMedium Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left
             local SL=Instance.new("TextLabel",DB) SL.Size=UDim2.new(0.5,-30,1,0) SL.Position=UDim2.new(0.5,0,0,0) SL.BackgroundTransparency=1 SL.Text=df SL.TextColor3=Oversimplified.Theme.Active SL.Font=Enum.Font.GothamMedium SL.TextSize=12 SL.TextXAlignment=Enum.TextXAlignment.Right
@@ -93,7 +94,7 @@ function Oversimplified:CreateWindow(tTxt)
             for _,o in ipairs(op) do local OB=Instance.new("TextButton",OC) OB.Size=UDim2.new(1,0,0,24) OB.BackgroundColor3=Oversimplified.Theme.DarkerBg OB.TextColor3=Oversimplified.Theme.Text OB.Font=Enum.Font.Gotham OB.TextSize=12 OB.Text=o OB.AutoButtonColor=false Instance.new("UICorner",OB).CornerRadius=UDim.new(0,4) OB.MouseButton1Click:Connect(function() SL.Text=o tg() cb(o) end) end
         end
         function E:CreateColorPicker(tx,dc,cb)
-            local C=Instance.new("Frame",TSc) C.Size=UDim2.new(1,-14,0,34) C.BackgroundColor3=Oversimplified.Theme.Bg C.ClipsDescendants=true Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
+            local C=Instance.new("Frame",TSc) eO=eO+1 C.LayoutOrder=eO C.Size=UDim2.new(1,-14,0,34) C.BackgroundColor3=Oversimplified.Theme.Bg C.ClipsDescendants=true Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
             local PB=Instance.new("TextButton",C) PB.Size=UDim2.new(1,0,0,34) PB.BackgroundTransparency=1 PB.Text="" PB.AutoButtonColor=false
             local Lb=Instance.new("TextLabel",PB) Lb.Size=UDim2.new(0.5,0,1,0) Lb.Position=UDim2.new(0,10,0,0) Lb.BackgroundTransparency=1 Lb.Text=tx Lb.TextColor3=Oversimplified.Theme.Text Lb.Font=Enum.Font.GothamMedium Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left
             local CP=Instance.new("Frame",PB) CP.Size=UDim2.new(0,40,0,16) CP.Position=UDim2.new(1,-50,0.5,-8) CP.BackgroundColor3=dc Instance.new("UICorner",CP).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",CP).Color=Oversimplified.Theme.Border CP.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
