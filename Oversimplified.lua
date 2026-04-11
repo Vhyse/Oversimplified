@@ -1,4 +1,4 @@
--- [[ Oversimplified UI Library v2.3 - Keybind Clear Patch ]] --
+-- [[ Oversimplified UI Library v2.4 - Universal Fade Patch ]] --
 local Oversimplified = {}
 
 Oversimplified.Theme = {
@@ -35,37 +35,52 @@ local function MakeDraggable(frame)
     end)
 end
 
+-- [[ UNIVERSAL FADE FUNCTION ]]
+local function FadeUI(element, show, duration)
+    local tInfo = TweenInfo.new(duration, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out)
+    
+    local function tweenObj(obj)
+        -- 1. Save the original transparencies the first time we see the object
+        if not obj:GetAttribute("OrigSaved") then
+            obj:SetAttribute("OrigSaved", true)
+            if obj:IsA("GuiObject") then obj:SetAttribute("OrigBg", obj.BackgroundTransparency) end
+            if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then obj:SetAttribute("OrigText", obj.TextTransparency) end
+            if obj:IsA("UIStroke") then obj:SetAttribute("OrigStroke", obj.Transparency) end
+            if obj:IsA("ScrollingFrame") then obj:SetAttribute("OrigScroll", obj.ScrollBarImageTransparency) end
+        end
+        
+        -- 2. Calculate target transparencies
+        local props = {}
+        if obj:GetAttribute("OrigBg") then props.BackgroundTransparency = show and obj:GetAttribute("OrigBg") or 1 end
+        if obj:GetAttribute("OrigText") then props.TextTransparency = show and obj:GetAttribute("OrigText") or 1 end
+        if obj:GetAttribute("OrigStroke") then props.Transparency = show and obj:GetAttribute("OrigStroke") or 1 end
+        if obj:GetAttribute("OrigScroll") then props.ScrollBarImageTransparency = show and obj:GetAttribute("OrigScroll") or 1 end
+        
+        -- 3. Apply changes (Instant or Tween)
+        if next(props) then 
+            if duration == 0 then
+                for k, v in pairs(props) do obj[k] = v end
+            else
+                TweenService:Create(obj, tInfo, props):Play() 
+            end
+        end
+    end
+    
+    tweenObj(element)
+    for _, child in ipairs(element:GetDescendants()) do tweenObj(child) end
+end
+
 function Oversimplified:CreateWindow(titleText)
     local guiName = "OversimplifiedUI"
     if CoreGui:FindFirstChild(guiName) then CoreGui[guiName]:Destroy() end
 
     local ScreenGui = Instance.new("ScreenGui"); ScreenGui.Name = guiName; ScreenGui.Parent = CoreGui
     
-    local MainFrame = Instance.new("CanvasGroup"); MainFrame.Size = UDim2.new(0, 520, 0, 380); MainFrame.Position = UDim2.new(0.5, -260, 0.5, -190); MainFrame.BackgroundColor3 = self.Theme.Bg; MainFrame.Parent = ScreenGui; MainFrame.GroupTransparency = 1
+    -- Reverted back to standard Frame to bypass executor CanvasGroup bugs
+    local MainFrame = Instance.new("Frame"); MainFrame.Size = UDim2.new(0, 520, 0, 380); MainFrame.Position = UDim2.new(0.5, -260, 0.5, -190); MainFrame.BackgroundColor3 = self.Theme.Bg; MainFrame.Parent = ScreenGui
     Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 6)
     local MainStroke = Instance.new("UIStroke", MainFrame); MainStroke.Color = self.Theme.Border; MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     MakeDraggable(MainFrame)
-
-    TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {GroupTransparency = 0}):Play()
-
-    local isVisible = true
-    local isTweening = false
-    UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if not gameProcessed and input.KeyCode == Enum.KeyCode.Insert and not isTweening then
-            isTweening = true
-            isVisible = not isVisible
-            if isVisible then
-                MainFrame.Visible = true
-                local t = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {GroupTransparency = 0})
-                t:Play(); t.Completed:Wait()
-            else
-                local t = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {GroupTransparency = 1})
-                t:Play(); t.Completed:Wait()
-                MainFrame.Visible = false
-            end
-            isTweening = false
-        end
-    end)
 
     local Title = Instance.new("TextLabel", MainFrame); Title.Size = UDim2.new(1, 0, 0, 30); Title.BackgroundTransparency = 1; Title.Text = "  " .. titleText; Title.TextColor3 = self.Theme.Active; Title.Font = Enum.Font.GothamBold; Title.TextSize = 14; Title.TextXAlignment = Enum.TextXAlignment.Left
     local Divider = Instance.new("Frame", MainFrame); Divider.Size = UDim2.new(1, 0, 0, 1); Divider.Position = UDim2.new(0, 0, 0, 30); Divider.BackgroundColor3 = self.Theme.Border; Divider.BorderSizePixel = 0
@@ -74,7 +89,33 @@ function Oversimplified:CreateWindow(titleText)
     local TabLayout = Instance.new("UIListLayout", TabContainer); TabLayout.Padding = UDim.new(0, 5); TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
     local TabPad = Instance.new("UIPadding", TabContainer); TabPad.PaddingTop = UDim.new(0, 2); TabPad.PaddingBottom = UDim.new(0, 2)
     
-    local ContentContainer = Instance.new("CanvasGroup", MainFrame); ContentContainer.Size = UDim2.new(1, -135, 1, -40); ContentContainer.Position = UDim2.new(0, 130, 0, 35); ContentContainer.BackgroundTransparency = 1
+    local ContentContainer = Instance.new("Frame", MainFrame); ContentContainer.Size = UDim2.new(1, -135, 1, -40); ContentContainer.Position = UDim2.new(0, 130, 0, 35); ContentContainer.BackgroundTransparency = 1
+
+    -- INITIAL STARTUP FADE
+    FadeUI(MainFrame, false, 0) 
+    MainFrame.Visible = true
+    FadeUI(MainFrame, true, 0.4)
+
+    -- INSERT TOGGLE FADE
+    local isVisible = true
+    local isTweening = false
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed and input.KeyCode == Enum.KeyCode.Insert and not isTweening then
+            isTweening = true
+            isVisible = not isVisible
+            if isVisible then
+                FadeUI(MainFrame, false, 0)
+                MainFrame.Visible = true
+                FadeUI(MainFrame, true, 0.3)
+                task.wait(0.3)
+            else
+                FadeUI(MainFrame, false, 0.3)
+                task.wait(0.3)
+                MainFrame.Visible = false
+            end
+            isTweening = false
+        end
+    end)
 
     local WindowObj = { CurrentTab = nil }
     local isSwitchingTab = false
@@ -92,19 +133,28 @@ function Oversimplified:CreateWindow(titleText)
             TabScroll.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 15)
         end)
 
+        -- TAB SWITCHING FADE
         TabBtn.MouseButton1Click:Connect(function()
             if WindowObj.CurrentTab == tabName or isSwitchingTab then return end
             isSwitchingTab = true
-            local fadeOut = TweenService:Create(ContentContainer, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {GroupTransparency = 1})
-            fadeOut:Play(); fadeOut.Completed:Wait()
+            
+            local currentScroll = nil
+            for _, child in ipairs(ContentContainer:GetChildren()) do if child:IsA("ScrollingFrame") and child.Visible then currentScroll = child break end end
+            
+            if currentScroll then
+                FadeUI(currentScroll, false, 0.15)
+                task.wait(0.15)
+                currentScroll.Visible = false
+            end
 
-            for _, child in ipairs(ContentContainer:GetChildren()) do if child:IsA("ScrollingFrame") then child.Visible = false end end
             for _, btn in ipairs(TabContainer:GetChildren()) do if btn:IsA("TextButton") then btn.BackgroundColor3 = Oversimplified.Theme.Inactive end end
             TabScroll.Visible = true; TabBtn.BackgroundColor3 = Oversimplified.Theme.Active
             WindowObj.CurrentTab = tabName
 
-            local fadeIn = TweenService:Create(ContentContainer, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {GroupTransparency = 0})
-            fadeIn:Play(); fadeIn.Completed:Wait()
+            FadeUI(TabScroll, false, 0) 
+            FadeUI(TabScroll, true, 0.15)
+            task.wait(0.15)
+            
             isSwitchingTab = false
         end)
 
@@ -175,14 +225,10 @@ function Oversimplified:CreateWindow(titleText)
             InputBox.FocusLost:Connect(function() callback(InputBox.Text) end)
         end
 
-        -- [[ UPDATED KEYBIND WITH CLEAR FUNCTIONALITY ]]
         function Elements:CreateKeybind(text, defaultKey, callback)
             local Container = Instance.new("Frame", TabScroll); Container.Size = UDim2.new(1, -14, 0, 34); Container.BackgroundColor3 = Oversimplified.Theme.Bg
             Instance.new("UICorner", Container).CornerRadius = UDim.new(0, 4); Instance.new("UIStroke", Container).Color = Oversimplified.Theme.Border; Container.UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-            
             local Lbl = Instance.new("TextLabel", Container); Lbl.Size = UDim2.new(0.5, 0, 1, 0); Lbl.Position = UDim2.new(0, 10, 0, 0); Lbl.BackgroundTransparency = 1; Lbl.Text = text; Lbl.TextColor3 = Oversimplified.Theme.Text; Lbl.Font = Enum.Font.GothamMedium; Lbl.TextSize = 13; Lbl.TextXAlignment = Enum.TextXAlignment.Left
-            
-            -- Display "None" if defaultKey is nil
             local startText = defaultKey and defaultKey.Name or "None"
             local BindBtn = Instance.new("TextButton", Container); BindBtn.Size = UDim2.new(0, 80, 0, 24); BindBtn.Position = UDim2.new(1, -90, 0.5, -12); BindBtn.BackgroundColor3 = Oversimplified.Theme.DarkerBg; BindBtn.TextColor3 = Oversimplified.Theme.Active; BindBtn.Font = Enum.Font.GothamBold; BindBtn.TextSize = 12; BindBtn.Text = startText; BindBtn.AutoButtonColor = false
             Instance.new("UICorner", BindBtn).CornerRadius = UDim.new(0, 4); Instance.new("UIStroke", BindBtn).Color = Oversimplified.Theme.Border; BindBtn.UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -196,26 +242,18 @@ function Oversimplified:CreateWindow(titleText)
                 connection = UserInputService.InputBegan:Connect(function(input)
                     if input.UserInputType == Enum.UserInputType.Keyboard then
                         listening = false
-                        
-                        -- Check for Backspace to clear the bind
                         if input.KeyCode == Enum.KeyCode.Backspace then
-                            currentKey = nil
-                            BindBtn.Text = "None"
+                            currentKey = nil; BindBtn.Text = "None"
                         else
-                            currentKey = input.KeyCode
-                            BindBtn.Text = currentKey.Name
+                            currentKey = input.KeyCode; BindBtn.Text = currentKey.Name
                         end
-                        
                         connection:Disconnect()
                     end
                 end)
             end)
 
             UserInputService.InputBegan:Connect(function(input, gameProcessed)
-                -- Only trigger if listening is false, game didn't process it, and currentKey isn't nil
-                if not listening and not gameProcessed and currentKey and input.KeyCode == currentKey then 
-                    callback(currentKey) 
-                end
+                if not listening and not gameProcessed and currentKey and input.KeyCode == currentKey then callback(currentKey) end
             end)
         end
 
