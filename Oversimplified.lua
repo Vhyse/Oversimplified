@@ -1,4 +1,4 @@
--- [[ Oversimplified UI Library v2.0 - Rayfield Equivalents ]] --
+-- [[ Oversimplified UI Library v2.1 - Padding & Keybind Patch ]] --
 local Oversimplified = {}
 
 Oversimplified.Theme = {
@@ -45,11 +45,23 @@ function Oversimplified:CreateWindow(titleText)
     local MainStroke = Instance.new("UIStroke", MainFrame); MainStroke.Color = self.Theme.Border; MainStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     MakeDraggable(MainFrame)
 
+    -- [[ THE NEW TOGGLE KEYBIND ]]
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if not gameProcessed and input.KeyCode == Enum.KeyCode.Insert then
+            MainFrame.Visible = not MainFrame.Visible
+        end
+    end)
+
     local Title = Instance.new("TextLabel", MainFrame); Title.Size = UDim2.new(1, 0, 0, 30); Title.BackgroundTransparency = 1; Title.Text = "  " .. titleText; Title.TextColor3 = self.Theme.Text; Title.Font = Enum.Font.GothamBold; Title.TextSize = 14; Title.TextXAlignment = Enum.TextXAlignment.Left
     local Divider = Instance.new("Frame", MainFrame); Divider.Size = UDim2.new(1, 0, 0, 1); Divider.Position = UDim2.new(0, 0, 0, 30); Divider.BackgroundColor3 = self.Theme.Border; Divider.BorderSizePixel = 0
 
     local TabContainer = Instance.new("ScrollingFrame", MainFrame); TabContainer.Size = UDim2.new(0, 130, 1, -40); TabContainer.Position = UDim2.new(0, 0, 0, 35); TabContainer.BackgroundTransparency = 1; TabContainer.ScrollBarThickness = 0
     local TabLayout = Instance.new("UIListLayout", TabContainer); TabLayout.Padding = UDim.new(0, 5); TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center; TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    
+    -- [[ PADDING FIX FOR TABS ]]
+    local TabPad = Instance.new("UIPadding", TabContainer)
+    TabPad.PaddingTop = UDim.new(0, 2)
+    TabPad.PaddingBottom = UDim.new(0, 2)
     
     local ContentContainer = Instance.new("Frame", MainFrame); ContentContainer.Size = UDim2.new(1, -135, 1, -40); ContentContainer.Position = UDim2.new(0, 130, 0, 35); ContentContainer.BackgroundTransparency = 1
 
@@ -63,8 +75,13 @@ function Oversimplified:CreateWindow(titleText)
         local TabScroll = Instance.new("ScrollingFrame", ContentContainer); TabScroll.Size = UDim2.new(1, 0, 1, 0); TabScroll.BackgroundTransparency = 1; TabScroll.ScrollBarThickness = 2; TabScroll.Visible = false
         local Layout = Instance.new("UIListLayout", TabScroll); Layout.Padding = UDim.new(0, 6); Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center; Layout.SortOrder = Enum.SortOrder.LayoutOrder
         
+        -- [[ PADDING FIX FOR TAB CONTENT ]]
+        local ScrollPad = Instance.new("UIPadding", TabScroll)
+        ScrollPad.PaddingTop = UDim.new(0, 2)
+        ScrollPad.PaddingBottom = UDim.new(0, 2)
+
         Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-            TabScroll.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 10)
+            TabScroll.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 15)
         end)
 
         TabBtn.MouseButton1Click:Connect(function()
@@ -213,7 +230,7 @@ function Oversimplified:CreateWindow(titleText)
             end
         end
 
-        -- 9. RGB COLOR PICKER (Oversimplified logic to prevent image load failures)
+        -- 9. RGB COLOR PICKER
         function Elements:CreateColorPicker(text, defaultColor, callback)
             local Container = Instance.new("Frame", TabScroll); Container.Size = UDim2.new(1, -14, 0, 34); Container.BackgroundColor3 = Oversimplified.Theme.Bg; Container.ClipsDescendants = true
             Instance.new("UICorner", Container).CornerRadius = UDim.new(0, 4); Instance.new("UIStroke", Container).Color = Oversimplified.Theme.Border; Container.UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
