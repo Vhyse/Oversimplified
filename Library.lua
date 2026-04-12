@@ -5,13 +5,14 @@ local TS,UIS=game:GetService("TweenService"),game:GetService("UserInputService")
 local CG=pcall(function() return game:GetService("CoreGui") end) and game:GetService("CoreGui") or game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local function MakeDraggable(f) local d,di,ds,sp f.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 then d=true ds=i.Position sp=f.Position i.Changed:Connect(function() if i.UserInputState==Enum.UserInputState.End then d=false end end) end end) f.InputChanged:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseMovement then di=i end end) UIS.InputChanged:Connect(function(i) if i==di and d then local dl=i.Position-ds f.Position=UDim2.new(sp.X.Scale,sp.X.Offset+dl.X,sp.Y.Scale,sp.Y.Offset+dl.Y) end end) end
 local function FadeUI(e,s,d) local t=TweenInfo.new(d,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out) local function tw(o) if not o:GetAttribute("OS") then o:SetAttribute("OS",true) if o:IsA("GuiObject") then o:SetAttribute("OBg",o.BackgroundTransparency) end if o:IsA("TextLabel") or o:IsA("TextButton") or o:IsA("TextBox") then o:SetAttribute("OTx",o.TextTransparency) end if o:IsA("UIStroke") then o:SetAttribute("OSt",o.Transparency) end if o:IsA("ScrollingFrame") then o:SetAttribute("OSc",o.ScrollBarImageTransparency) end end local p={} if o:GetAttribute("OBg") then p.BackgroundTransparency=s and o:GetAttribute("OBg") or 1 end if o:GetAttribute("OTx") then p.TextTransparency=s and o:GetAttribute("OTx") or 1 end if o:GetAttribute("OSt") then p.Transparency=s and o:GetAttribute("OSt") or 1 end if o:GetAttribute("OSc") then p.ScrollBarImageTransparency=s and o:GetAttribute("OSc") or 1 end if next(p) then if d==0 then for k,v in pairs(p) do o[k]=v end else TS:Create(o,t,p):Play() end end end tw(e) for _,c in ipairs(e:GetDescendants()) do tw(c) end end
-function Oversimplified:CreateWindow(tTxt)
+function Oversimplified:CreateWindow(tTxt,tClr)
     if CG:FindFirstChild("OS_UI") then CG.OS_UI:Destroy() end
     local SG=Instance.new("ScreenGui",CG) SG.Name="OS_UI" SG.ResetOnSpawn=false SG.Enabled=false
     local MF=Instance.new("Frame",SG) MF.Size=UDim2.new(0,520,0,380) MF.Position=UDim2.new(0.5,-260,0.5,-190) MF.BackgroundColor3=self.Theme.Bg MF.Visible=false
     Instance.new("UICorner",MF).CornerRadius=UDim.new(0,6) Instance.new("UIStroke",MF).Color=self.Theme.Border MF.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border MakeDraggable(MF)
-    local Ti=Instance.new("TextLabel",MF) Ti.Size=UDim2.new(1,0,0,30) Ti.BackgroundTransparency=1 Ti.Text="  "..tTxt Ti.TextColor3=self.Theme.Active Ti.Font=Enum.Font.GothamBold Ti.TextSize=14 Ti.TextXAlignment=Enum.TextXAlignment.Left
+    local Ti=Instance.new("TextLabel",MF) Ti.Size=UDim2.new(1,0,0,30) Ti.BackgroundTransparency=1 Ti.Text="  "..tTxt Ti.TextColor3=tClr or self.Theme.Active Ti.Font=Enum.Font.GothamBold Ti.TextSize=14 Ti.TextXAlignment=Enum.TextXAlignment.Left
     local D=Instance.new("Frame",MF) D.Size=UDim2.new(1,0,0,1) D.Position=UDim2.new(0,0,0,30) D.BackgroundColor3=self.Theme.Border D.BorderSizePixel=0
+    local VD=Instance.new("Frame",MF) VD.Size=UDim2.new(0,1,1,-30) VD.Position=UDim2.new(0,130,0,30) VD.BackgroundColor3=self.Theme.Border VD.BorderSizePixel=0
     local TC=Instance.new("ScrollingFrame",MF) TC.Size=UDim2.new(0,130,1,-40) TC.Position=UDim2.new(0,0,0,35) TC.BackgroundTransparency=1 TC.ScrollBarThickness=0
     local TL=Instance.new("UIListLayout",TC) TL.Padding=UDim.new(0,5) TL.HorizontalAlignment=Enum.HorizontalAlignment.Center TL.SortOrder=Enum.SortOrder.LayoutOrder
     Instance.new("UIPadding",TC).PaddingTop=UDim.new(0,2) TC.UIPadding.PaddingBottom=UDim.new(0,2)
@@ -30,15 +31,15 @@ function Oversimplified:CreateWindow(tTxt)
         TB.MouseButton1Click:Connect(function() if WO.CT==tN or isS then return end isS=true for _,b in ipairs(TC:GetChildren()) do if b:IsA("TextButton") then TS:Create(b,TweenInfo.new(0.2,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out),{BackgroundColor3=Oversimplified.Theme.Inactive}):Play() end end TS:Create(TB,TweenInfo.new(0.2,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out),{BackgroundColor3=Oversimplified.Theme.Active}):Play() local cS=nil for _,c in ipairs(CC:GetChildren()) do if c:IsA("ScrollingFrame") and c.Visible then cS=c break end end if cS then FadeUI(cS,false,0.15) task.wait(0.15) cS.Visible=false end TSc.Visible=true WO.CT=tN FadeUI(TSc,false,0) FadeUI(TSc,true,0.15) task.wait(0.15) isS=false end)
         if not self.CT then TSc.Visible=true TB.BackgroundColor3=Oversimplified.Theme.Active self.CT=tN end
         local E={} local eO=0
-        function E:CreateParagraph(ti,de)
+        function E:CreateParagraph(ti,de,tC,dC)
             local C=Instance.new("Frame",TSc) eO=eO+1 C.LayoutOrder=eO C.Size=UDim2.new(1,-14,0,50) C.BackgroundColor3=Oversimplified.Theme.Bg Instance.new("UICorner",C).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",C).Color=Oversimplified.Theme.Border C.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
-            local LT=Instance.new("TextLabel",C) LT.Size=UDim2.new(1,-20,0,20) LT.Position=UDim2.new(0,10,0,5) LT.BackgroundTransparency=1 LT.Text=ti LT.TextColor3=Oversimplified.Theme.Active LT.Font=Enum.Font.GothamBold LT.TextSize=13 LT.TextXAlignment=Enum.TextXAlignment.Left
-            local LD=Instance.new("TextLabel",C) LD.Size=UDim2.new(1,-20,0,20) LD.Position=UDim2.new(0,10,0,25) LD.BackgroundTransparency=1 LD.Text=de LD.TextColor3=Oversimplified.Theme.Text LD.Font=Enum.Font.Gotham LD.TextSize=12 LD.TextXAlignment=Enum.TextXAlignment.Left LD.TextWrapped=true
-            local PO={} function PO:Set(t,d) LT.Text=t if d then LD.Text=d end end return PO
+            local LT=Instance.new("TextLabel",C) LT.Size=UDim2.new(1,-20,0,20) LT.Position=UDim2.new(0,10,0,5) LT.BackgroundTransparency=1 LT.Text=ti LT.TextColor3=tC or Oversimplified.Theme.Active LT.Font=Enum.Font.GothamBold LT.TextSize=13 LT.TextXAlignment=Enum.TextXAlignment.Left
+            local LD=Instance.new("TextLabel",C) LD.Size=UDim2.new(1,-20,0,20) LD.Position=UDim2.new(0,10,0,25) LD.BackgroundTransparency=1 LD.Text=de LD.TextColor3=dC or Oversimplified.Theme.Text LD.Font=Enum.Font.Gotham LD.TextSize=12 LD.TextXAlignment=Enum.TextXAlignment.Left LD.TextWrapped=true
+            local PO={} function PO:Set(t,d,c1,c2) if t then LT.Text=t end if d then LD.Text=d end if c1 then LT.TextColor3=c1 end if c2 then LD.TextColor3=c2 end end return PO
         end
-        function E:CreateLabel(tx)
-            local Lb=Instance.new("TextLabel",TSc) eO=eO+1 Lb.LayoutOrder=eO Lb.Size=UDim2.new(1,-14,0,25) Lb.BackgroundTransparency=1 Lb.TextColor3=Oversimplified.Theme.Active Lb.Font=Enum.Font.GothamBold Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left Lb.Text=tx
-            local LO={} function LO:Set(t) Lb.Text=t end return LO
+        function E:CreateLabel(tx,tC)
+            local Lb=Instance.new("TextLabel",TSc) eO=eO+1 Lb.LayoutOrder=eO Lb.Size=UDim2.new(1,-14,0,25) Lb.BackgroundTransparency=1 Lb.TextColor3=tC or Oversimplified.Theme.Active Lb.Font=Enum.Font.GothamBold Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left Lb.Text=tx
+            local LO={} function LO:Set(t,c) if t then Lb.Text=t end if c then Lb.TextColor3=c end end return LO
         end
         function E:CreateButton(tx,cb)
             local B=Instance.new("TextButton",TSc) eO=eO+1 B.LayoutOrder=eO B.Size=UDim2.new(1,-14,0,34) B.BackgroundColor3=Oversimplified.Theme.Inactive B.TextColor3=Oversimplified.Theme.Text B.Font=Enum.Font.GothamMedium B.TextSize=13 B.Text=tx B.AutoButtonColor=false Instance.new("UICorner",B).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",B).Color=Oversimplified.Theme.Border B.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
