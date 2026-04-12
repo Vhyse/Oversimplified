@@ -1,4 +1,4 @@
--- Oversimplified by Ege | v1
+-- Oversimplified by Ege
 
 local Oversimplified={Theme={Bg=Color3.fromRGB(24,24,27),Border=Color3.fromRGB(55,55,60),Text=Color3.fromRGB(228,228,231),Active=Color3.fromRGB(99,102,241),Inactive=Color3.fromRGB(40,40,45),SliderBg=Color3.fromRGB(45,45,50),DarkerBg=Color3.fromRGB(18,18,20)}}
 local TS,UIS=game:GetService("TweenService"),game:GetService("UserInputService")
@@ -97,30 +97,16 @@ function Oversimplified:CreateWindow(tTxt)
             local PB=Instance.new("TextButton",C) PB.Size=UDim2.new(1,0,0,34) PB.BackgroundTransparency=1 PB.Text="" PB.AutoButtonColor=false
             local Lb=Instance.new("TextLabel",PB) Lb.Size=UDim2.new(0.5,0,1,0) Lb.Position=UDim2.new(0,10,0,0) Lb.BackgroundTransparency=1 Lb.Text=tx Lb.TextColor3=Oversimplified.Theme.Text Lb.Font=Enum.Font.GothamMedium Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left
             local CP=Instance.new("Frame",PB) CP.Size=UDim2.new(0,40,0,16) CP.Position=UDim2.new(1,-50,0.5,-8) CP.BackgroundColor3=dc Instance.new("UICorner",CP).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",CP).Color=Oversimplified.Theme.Border CP.UIStroke.ApplyStrokeMode=Enum.ApplyStrokeMode.Border
-            local SF=Instance.new("Frame",C) SF.Size=UDim2.new(1,-20,0,100) SF.Position=UDim2.new(0,10,0,34) SF.BackgroundTransparency=1 Instance.new("UIListLayout",SF).Padding=UDim.new(0,5)
-            local opn=false PB.MouseButton1Click:Connect(function() opn=not opn TS:Create(C,TweenInfo.new(0.2),{Size=opn and UDim2.new(1,-14,0,140) or UDim2.new(1,-14,0,34)}):Play() end)
+            local SF=Instance.new("Frame",C) SF.Size=UDim2.new(1,-20,0,80) SF.Position=UDim2.new(0,10,0,34) SF.BackgroundTransparency=1 Instance.new("UIListLayout",SF).Padding=UDim.new(0,5)
+            local opn=false PB.MouseButton1Click:Connect(function() opn=not opn TS:Create(C,TweenInfo.new(0.2),{Size=opn and UDim2.new(1,-14,0,120) or UDim2.new(1,-14,0,34)}):Play() end)
             local r,g,b=dc.R*255,dc.G*255,dc.B*255 local function uC() local nC=Color3.fromRGB(r,g,b) CP.BackgroundColor3=nC cb(nC) end
             local sUpds={} local function cCS(cN,dV,tC)
                 local sF=Instance.new("Frame",SF) sF.Size=UDim2.new(1,0,0,20) sF.BackgroundTransparency=1 local sB=Instance.new("TextButton",sF) sB.Size=UDim2.new(1,-30,0,6) sB.Position=UDim2.new(0,0,0.5,-3) sB.BackgroundColor3=Oversimplified.Theme.SliderBg sB.Text="" sB.AutoButtonColor=false Instance.new("UICorner",sB).CornerRadius=UDim.new(1,0) local sFi=Instance.new("Frame",sB) sFi.Size=UDim2.new(dV/255,0,1,0) sFi.BackgroundColor3=tC Instance.new("UICorner",sFi).CornerRadius=UDim.new(1,0) local sV=Instance.new("TextLabel",sF) sV.Size=UDim2.new(0,25,1,0) sV.Position=UDim2.new(1,-25,0,0) sV.BackgroundTransparency=1 sV.Text=tostring(math.floor(dV)) sV.TextColor3=Oversimplified.Theme.Text sV.Font=Enum.Font.Gotham sV.TextSize=11
-                sUpds[cN]=function(vl, nt) local pc=vl/255 if nt then sFi.Size=UDim2.new(pc,0,1,0) else TS:Create(sFi,TweenInfo.new(0.05),{Size=UDim2.new(pc,0,1,0)}):Play() end sV.Text=tostring(math.floor(vl)) if cN=="R" then r=vl elseif cN=="G" then g=vl else b=vl end end
-                local dg=false local function sU(i) local pc=math.clamp((i.Position.X-sB.AbsolutePosition.X)/sB.AbsoluteSize.X,0,1) local vl=math.floor(pc*255) sUpds[cN](vl, false) uC() end
+                sUpds[cN]=function(vl) local pc=vl/255 TS:Create(sFi,TweenInfo.new(0.05),{Size=UDim2.new(pc,0,1,0)}):Play() sV.Text=tostring(math.floor(vl)) if cN=="R" then r=vl elseif cN=="G" then g=vl else b=vl end end
+                local dg=false local function sU(i) local pc=math.clamp((i.Position.X-sB.AbsolutePosition.X)/sB.AbsoluteSize.X,0,1) local vl=math.floor(pc*255) sUpds[cN](vl) uC() end
                 sB.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 then dg=true sU(i) end end) UIS.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 then dg=false end end) UIS.InputChanged:Connect(function(i) if dg and i.UserInputType==Enum.UserInputType.MouseMovement then sU(i) end end)
             end cCS("R",r,Color3.fromRGB(255,75,75)) cCS("G",g,Color3.fromRGB(75,255,75)) cCS("B",b,Color3.fromRGB(75,75,255))
-            
-            local CT=Instance.new("TextButton",SF) CT.Size=UDim2.new(1,0,0,24) CT.BackgroundColor3=Oversimplified.Theme.DarkerBg CT.Text="" CT.AutoButtonColor=false Instance.new("UICorner",CT).CornerRadius=UDim.new(0,4)
-            local CL=Instance.new("TextLabel",CT) CL.Size=UDim2.new(1,-50,1,0) CL.Position=UDim2.new(0,10,0,0) CL.BackgroundTransparency=1 CL.Text="Rainbow Chroma" CL.TextColor3=Oversimplified.Theme.Text CL.Font=Enum.Font.GothamMedium CL.TextSize=11 CL.TextXAlignment=Enum.TextXAlignment.Left
-            local CTr=Instance.new("Frame",CT) CTr.Size=UDim2.new(0,30,0,14) CTr.Position=UDim2.new(1,-40,0.5,-7) CTr.BackgroundColor3=Oversimplified.Theme.Inactive Instance.new("UICorner",CTr).CornerRadius=UDim.new(1,0)
-            local CCi=Instance.new("Frame",CTr) CCi.Size=UDim2.new(0,10,0,10) CCi.Position=UDim2.new(0,2,0.5,-5) CCi.BackgroundColor3=Color3.fromRGB(255,255,255) Instance.new("UICorner",CCi).CornerRadius=UDim.new(1,0)
-            
-            local cOn, cConn = false, nil
-            CT.MouseButton1Click:Connect(function()
-                cOn = not cOn
-                TS:Create(CTr,TweenInfo.new(0.2),{BackgroundColor3=cOn and Oversimplified.Theme.Active or Oversimplified.Theme.Inactive}):Play()
-                TS:Create(CCi,TweenInfo.new(0.2),{Position=cOn and UDim2.new(1,-12,0.5,-5) or UDim2.new(0,2,0.5,-5)}):Play()
-                if cOn then cConn = game:GetService("RunService").RenderStepped:Connect(function() local clr = Color3.fromHSV(tick() % 5 / 5, 1, 1) sUpds["R"](clr.R*255, true) sUpds["G"](clr.G*255, true) sUpds["B"](clr.B*255, true) uC() end) else if cConn then cConn:Disconnect() cConn = nil end end
-            end)
-
-            local CPO={} function CPO:Set(c) sUpds["R"](c.R*255, false) sUpds["G"](c.G*255, false) sUpds["B"](c.B*255, false) uC() end return CPO
+            local CPO={} function CPO:Set(c) sUpds["R"](c.R*255) sUpds["G"](c.G*255) sUpds["B"](c.B*255) uC() end return CPO
         end return E
     end return WO
 end return Oversimplified
