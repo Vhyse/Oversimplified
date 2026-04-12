@@ -3,7 +3,8 @@ local libraryLink = "https://raw.githubusercontent.com/Vhyse/Oversimplified/refs
 local Oversimplified = loadstring(game:HttpGet(libraryLink))()
 
 -- [[ 2. Create the Main Window ]]
-local Window = Oversimplified:CreateWindow("Oversimplified Showcase")
+-- You can now pass an optional 2nd argument to color the window title!
+local Window = Oversimplified:CreateWindow("Oversimplified Showcase", Color3.fromRGB(99, 102, 241))
 
 -- Trigger a welcome notification
 Window:Notify("Welcome!", "This script demonstrates every element in the library.", 4)
@@ -15,9 +16,11 @@ local DynamicTab = Window:CreateTab("Dynamic Tests")
 -- ========================================== --
 --       TAB 1: ALL ELEMENTS SHOWCASE        
 -- ========================================== --
-MainTab:CreateParagraph("Information", "This tab contains every single static and interactive element available in the Oversimplified v3.1 UI Library.")
+-- CreateParagraph now accepts: (Title, Description, TitleColor, DescColor)
+MainTab:CreateParagraph("Information", "This tab contains every single static and interactive element available in the Oversimplified v3.9 UI Library.", Color3.fromRGB(255, 100, 100), Color3.fromRGB(200, 200, 200))
 
-MainTab:CreateLabel("This is a standard text label.")
+-- CreateLabel now accepts: (Text, TextColor)
+MainTab:CreateLabel("This is a custom colored text label.", Color3.fromRGB(0, 255, 150))
 
 MainTab:CreateButton("Standard Button", function()
     Window:Notify("Clicked", "You clicked the standard button!", 2)
@@ -59,16 +62,18 @@ local PlayerDropdown = DynamicTab:CreateDropdown("Players in Game", {"Loading...
 DynamicTab:CreateLabel("--- Update Controls ---")
 
 -- Buttons to trigger the updates
-DynamicTab:CreateButton("Update Paragraph (Title & Desc)", function()
-    DynamicParagraph:Set("Updated Methods", "The paragraph has been successfully updated via the script!")
+DynamicTab:CreateButton("Update Paragraph (Title, Desc & Colors)", function()
+    -- Format: :Set(Title, Description, TitleColor, DescColor)
+    DynamicParagraph:Set("Updated Methods", "The paragraph has been successfully updated via the script!", Color3.fromRGB(0, 255, 0), Color3.fromRGB(255, 255, 255))
 end)
 
 DynamicTab:CreateButton("Update Paragraph (Title Only)", function()
     DynamicParagraph:Set("Title Updated!")
 end)
 
-DynamicTab:CreateButton("Update the Label above", function()
-    StatusLabel:Set("Status: Updated at " .. os.date("%X"))
+DynamicTab:CreateButton("Update Label (Text & Color)", function()
+    -- Format: :Set(Text, TextColor)
+    StatusLabel:Set("Status: Updated at " .. os.date("%X"), Color3.fromRGB(255, 165, 0))
 end)
 
 DynamicTab:CreateButton("Force Slider to Max (100)", function()
