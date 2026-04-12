@@ -1,5 +1,5 @@
 -- [[ 1. Load the Oversimplified Library ]]
-local libraryLink = "https://raw.githubusercontent.com/aV7gP2hQw9TzK1d/Oversimplified/refs/heads/main/Library.lua"
+local libraryLink = "https://raw.githubusercontent.com/Vhyse/Oversimplified/refs/heads/main/Library.lua"
 local Oversimplified = loadstring(game:HttpGet(libraryLink))()
 
 -- [[ 2. Create the Main Window ]]
