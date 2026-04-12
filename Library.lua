@@ -1,5 +1,7 @@
 -- Oversimplified by Ege
 
+-- Oversimplified by Ege
+
 local Oversimplified={Theme={Bg=Color3.fromRGB(24,24,27),Border=Color3.fromRGB(55,55,60),Text=Color3.fromRGB(228,228,231),Active=Color3.fromRGB(99,102,241),Inactive=Color3.fromRGB(40,40,45),SliderBg=Color3.fromRGB(45,45,50),DarkerBg=Color3.fromRGB(18,18,20)}}
 local TS,UIS=game:GetService("TweenService"),game:GetService("UserInputService")
 local CG=pcall(function() return game:GetService("CoreGui") end) and game:GetService("CoreGui") or game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -37,7 +39,7 @@ function Oversimplified:CreateWindow(tTxt)
             local PO={} function PO:Set(t,d) LT.Text=t if d then LD.Text=d end end return PO
         end
         function E:CreateLabel(tx)
-            local Lb=Instance.new("TextLabel",TSc) eO=eO+1 Lb.LayoutOrder=eO Lb.Size=UDim2.new(1,-14,0,25) Lb.BackgroundTransparency=1 Lb.TextColor3=Oversimplified.Theme.Text Lb.Font=Enum.Font.GothamBold Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left Lb.Text=tx
+            local Lb=Instance.new("TextLabel",TSc) eO=eO+1 Lb.LayoutOrder=eO Lb.Size=UDim2.new(1,-14,0,25) Lb.BackgroundTransparency=1 Lb.TextColor3=Oversimplified.Theme.Active Lb.Font=Enum.Font.GothamBold Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left Lb.Text=tx
             local LO={} function LO:Set(t) Lb.Text=t end return LO
         end
         function E:CreateButton(tx,cb)
