@@ -1,4 +1,4 @@
--- Oversimplified by Vhyse
+-- Oversimplified by Ege
 
 local Oversimplified={
     Theme={Bg=Color3.fromRGB(12,12,14),Border=Color3.fromRGB(45,45,50),Text=Color3.fromRGB(220,220,225),Active=Color3.fromRGB(255,255,255),Inactive=Color3.fromRGB(20,20,24),SliderBg=Color3.fromRGB(24,24,28),DarkerBg=Color3.fromRGB(8,8,10)}
@@ -18,17 +18,20 @@ function Oversimplified:CreateWindow(tTxt, arg2, arg3)
     local WaveObjs={}
     local function ApplyW(o)
         local g=Instance.new("UIGradient",o) 
+        -- Creates multiple bright white peaks for a continuous overlapping glow effect
         g.Color=ColorSequence.new({
             ColorSequenceKeypoint.new(0,Color3.fromRGB(130,130,135)),
-            ColorSequenceKeypoint.new(0.5,Color3.fromRGB(255,255,255)),
+            ColorSequenceKeypoint.new(0.2,Color3.fromRGB(255,255,255)),
+            ColorSequenceKeypoint.new(0.4,Color3.fromRGB(130,130,135)),
+            ColorSequenceKeypoint.new(0.7,Color3.fromRGB(255,255,255)),
             ColorSequenceKeypoint.new(1,Color3.fromRGB(130,130,135))
         }) 
         g.Rotation=0 
         table.insert(WaveObjs,g)
     end
-    -- Smooth, continuous sine wave animation (no pauses, beautiful glow)
+    -- Seamless left-to-right sweep loop
     game:GetService("RunService").RenderStepped:Connect(function() 
-        local off=math.sin(tick()*1.2)*0.6 
+        local off = (tick() * 0.8) % 1.6 - 0.8 
         for _,g in ipairs(WaveObjs) do if g.Parent then g.Offset=Vector2.new(off,0) end end 
     end)
 
@@ -52,21 +55,8 @@ function Oversimplified:CreateWindow(tTxt, arg2, arg3)
     local NC=Instance.new("Frame",SG) NC.Size=UDim2.new(0,250,1,-40) NC.Position=UDim2.new(1,-270,0,20) NC.BackgroundTransparency=1
     local NL=Instance.new("UIListLayout",NC) NL.Padding=UDim.new(0,10) NL.HorizontalAlignment=Enum.HorizontalAlignment.Center NL.VerticalAlignment=Enum.VerticalAlignment.Bottom
     
-    local KF=nil
-    if keyStr and keyStr ~= "" then
-        KF=Instance.new("Frame",SG) KF.Size=UDim2.new(0,350,0,150) KF.Position=UDim2.new(0.5,-175,0.5,-75) KF.BackgroundColor3=Theme.Bg KF.Visible=false KF.ClipsDescendants=true Instance.new("UICorner",KF).CornerRadius=UDim.new(0,6) Instance.new("UIStroke",KF).Color=Theme.Border MakeDraggable(KF)
-        local KTitle=Instance.new("TextLabel",KF) KTitle.Size=UDim2.new(1,0,0,30) KTitle.Position=UDim2.new(0,3,0,0) KTitle.BackgroundTransparency=1 KTitle.Text="  "..tTxt.." - Key System" KTitle.TextColor3=tColor KTitle.Font=Enum.Font.GothamBold KTitle.TextSize=14 KTitle.TextXAlignment=Enum.TextXAlignment.Left ApplyW(KTitle)
-        local KD=Instance.new("Frame",KF) KD.Size=UDim2.new(1,0,0,1) KD.Position=UDim2.new(0,0,0,30) KD.BackgroundColor3=Theme.Border KD.BorderSizePixel=0
-        local KInfo=Instance.new("TextLabel",KF) KInfo.Size=UDim2.new(1,-20,0,20) KInfo.Position=UDim2.new(0,10,0,45) KInfo.BackgroundTransparency=1 KInfo.Text="Please enter the access key to continue." KInfo.TextColor3=Theme.Text KInfo.Font=Enum.Font.Gotham KInfo.TextSize=12
-        local KInput=Instance.new("TextBox",KF) KInput.Size=UDim2.new(1,-20,0,30) KInput.Position=UDim2.new(0,10,0,70) KInput.BackgroundColor3=Theme.DarkerBg KInput.TextColor3=Theme.Text KInput.PlaceholderText="Enter Key Here..." KInput.Font=Enum.Font.Gotham KInput.TextSize=12 KInput.ClearTextOnFocus=false Instance.new("UICorner",KInput).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",KInput).Color=Theme.Border
-        local KBtn=Instance.new("TextButton",KF) KBtn.Size=UDim2.new(1,-20,0,30) KBtn.Position=UDim2.new(0,10,0,110) KBtn.BackgroundColor3=Theme.Inactive KBtn.TextColor3=Theme.Text KBtn.Text="Submit Key" KBtn.Font=Enum.Font.GothamBold KBtn.TextSize=13 KBtn.AutoButtonColor=false Instance.new("UICorner",KBtn).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",KBtn).Color=Theme.Border
-        KBtn.MouseButton1Click:Connect(function()
-            if KInput.Text==keyStr then FadeUI(KF,false,0.2) task.wait(0.2) KF:Destroy() KF=nil FadeUI(MF,false,0) MF.Visible=true FadeUI(MF,true,0.4)
-            else KInput.Text="" KInput.PlaceholderText="Incorrect Key!" TS:Create(KInput,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(150,40,40)}):Play() task.delay(0.2,function() TS:Create(KInput,TweenInfo.new(0.2),{BackgroundColor3=Theme.DarkerBg}):Play() end) task.delay(1.5,function() KInput.PlaceholderText="Enter Key Here..." end) end
-        end)
-    end
-
     local iv,it=true,false
+    local KF=nil
     local function SetUIVisible(state)
         if it then return end it=true iv=state
         local tUI = (KF and KF.Parent) and KF or MF
@@ -76,26 +66,38 @@ function Oversimplified:CreateWindow(tTxt, arg2, arg3)
     end
 
     local function mkMac(par,c,p,cb) local b=Instance.new("TextButton",par) b.Size=UDim2.new(0,12,0,12) b.Position=UDim2.new(1,p,0,9) b.BackgroundColor3=c b.Text="" b.AutoButtonColor=false Instance.new("UICorner",b).CornerRadius=UDim.new(1,0) b.MouseButton1Click:Connect(cb) end
-    
-    local isHubMin=false
-    mkMac(MF, Color3.fromRGB(0,202,78), -62, function() end) -- Green
-    mkMac(MF, Color3.fromRGB(255,189,68), -41, function() -- Yellow (Minimize)
-        isHubMin=not isHubMin
-        TS:Create(MF,TweenInfo.new(0.3,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out),{Size=isHubMin and UDim2.new(0,520,0,30) or UDim2.new(0,520,0,380)}):Play()
-        ProfFrame.Visible, VD.Visible, TC.Visible, CC.Visible = not isHubMin, not isHubMin, not isHubMin, not isHubMin
-    end)
-    mkMac(MF, Color3.fromRGB(255,96,92), -20, function() SetUIVisible(false) end) -- Red (Hide)
 
-    if KF then
+    if keyStr and keyStr ~= "" then
+        KF=Instance.new("Frame",SG) KF.Size=UDim2.new(0,350,0,150) KF.Position=UDim2.new(0.5,-175,0.5,-75) KF.BackgroundColor3=Theme.Bg KF.Visible=false KF.ClipsDescendants=true Instance.new("UICorner",KF).CornerRadius=UDim.new(0,6) Instance.new("UIStroke",KF).Color=Theme.Border MakeDraggable(KF)
+        local KTitle=Instance.new("TextLabel",KF) KTitle.Size=UDim2.new(1,0,0,30) KTitle.Position=UDim2.new(0,3,0,0) KTitle.BackgroundTransparency=1 KTitle.Text="  "..tTxt.." - Key System" KTitle.TextColor3=tColor KTitle.Font=Enum.Font.GothamBold KTitle.TextSize=14 KTitle.TextXAlignment=Enum.TextXAlignment.Left ApplyW(KTitle)
+        local KD=Instance.new("Frame",KF) KD.Size=UDim2.new(1,0,0,1) KD.Position=UDim2.new(0,0,0,30) KD.BackgroundColor3=Theme.Border KD.BorderSizePixel=0
+        local KInfo=Instance.new("TextLabel",KF) KInfo.Size=UDim2.new(1,-20,0,20) KInfo.Position=UDim2.new(0,10,0,45) KInfo.BackgroundTransparency=1 KInfo.Text="Please enter the access key to continue." KInfo.TextColor3=Theme.Text KInfo.Font=Enum.Font.Gotham KInfo.TextSize=12
+        local KInput=Instance.new("TextBox",KF) KInput.Size=UDim2.new(1,-20,0,30) KInput.Position=UDim2.new(0,10,0,70) KInput.BackgroundColor3=Theme.DarkerBg KInput.TextColor3=Theme.Text KInput.PlaceholderText="Enter Key Here..." KInput.Font=Enum.Font.Gotham KInput.TextSize=12 KInput.ClearTextOnFocus=false Instance.new("UICorner",KInput).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",KInput).Color=Theme.Border
+        local KBtn=Instance.new("TextButton",KF) KBtn.Size=UDim2.new(1,-20,0,30) KBtn.Position=UDim2.new(0,10,0,110) KBtn.BackgroundColor3=Theme.Inactive KBtn.TextColor3=Theme.Text KBtn.Text="Submit Key" KBtn.Font=Enum.Font.GothamBold KBtn.TextSize=13 KBtn.AutoButtonColor=false Instance.new("UICorner",KBtn).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",KBtn).Color=Theme.Border
+        
+        KBtn.MouseButton1Click:Connect(function()
+            if KInput.Text==keyStr then FadeUI(KF,false,0.2) task.wait(0.2) KF:Destroy() KF=nil FadeUI(MF,false,0) MF.Visible=true FadeUI(MF,true,0.4)
+            else KInput.Text="" KInput.PlaceholderText="Incorrect Key!" TS:Create(KInput,TweenInfo.new(0.2),{BackgroundColor3=Color3.fromRGB(150,40,40)}):Play() task.delay(0.2,function() TS:Create(KInput,TweenInfo.new(0.2),{BackgroundColor3=Theme.DarkerBg}):Play() end) task.delay(1.5,function() KInput.PlaceholderText="Enter Key Here..." end) end
+        end)
+
         local isKeyMin=false
         mkMac(KF, Color3.fromRGB(0,202,78), -62, function() end)
         mkMac(KF, Color3.fromRGB(255,189,68), -41, function()
             isKeyMin=not isKeyMin
             TS:Create(KF,TweenInfo.new(0.3,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out),{Size=isKeyMin and UDim2.new(0,350,0,30) or UDim2.new(0,350,0,150)}):Play()
-            for _,c in ipairs(KF:GetChildren()) do if c:IsA("TextBox") or c:IsA("TextButton") or (c:IsA("TextLabel") and c.Name~="TextLabel") then c.Visible=not isKeyMin end end
+            KInfo.Visible = not isKeyMin; KInput.Visible = not isKeyMin; KBtn.Visible = not isKeyMin; KD.Visible = not isKeyMin
         end)
         mkMac(KF, Color3.fromRGB(255,96,92), -20, function() SetUIVisible(false) end)
     end
+
+    local isHubMin=false
+    mkMac(MF, Color3.fromRGB(0,202,78), -62, function() end) -- Green Hub
+    mkMac(MF, Color3.fromRGB(255,189,68), -41, function() -- Yellow Hub (Minimize)
+        isHubMin=not isHubMin
+        TS:Create(MF,TweenInfo.new(0.3,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out),{Size=isHubMin and UDim2.new(0,520,0,30) or UDim2.new(0,520,0,380)}):Play()
+        ProfFrame.Visible, VD.Visible, TC.Visible, CC.Visible = not isHubMin, not isHubMin, not isHubMin, not isHubMin
+    end)
+    mkMac(MF, Color3.fromRGB(255,96,92), -20, function() SetUIVisible(false) end) -- Red Hub (Hide)
 
     task.delay(0.15,function() SG.Enabled=true local tUI=KF or MF FadeUI(tUI,false,0) tUI.Visible=true FadeUI(tUI,true,0.4) end)
     UIS.InputBegan:Connect(function(i,g) if not g and i.KeyCode==Enum.KeyCode.Insert then SetUIVisible(not iv) end end)
