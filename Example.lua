@@ -1,7 +1,4 @@
--- ========================================================================= --
--- ||                  OVERSIMPLIFIED V6.0 - ADVANCED HUB                 || --
--- ||                     DYNAMIC UPDATERS INTEGRATED                     || --
--- ========================================================================= --
+-- [[ Oversimplified UI Example Script by Vhyse ]]
 
 -- [[ 1. Load the Library ]]
 local libraryLink = "https://raw.githubusercontent.com/Vhyse/Oversimplified/refs/heads/main/Library.lua"
