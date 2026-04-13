@@ -1,10 +1,10 @@
--- Oversimplified by Ege
+-- Oversimplified by Vhyse
 
 local Oversimplified={Theme={Bg=Color3.fromRGB(24,24,27),Border=Color3.fromRGB(55,55,60),Text=Color3.fromRGB(228,228,231),Active=Color3.fromRGB(99,102,241),Inactive=Color3.fromRGB(40,40,45),SliderBg=Color3.fromRGB(45,45,50),DarkerBg=Color3.fromRGB(18,18,20)}}
 local TS,UIS=game:GetService("TweenService"),game:GetService("UserInputService")
 local CG=pcall(function() return game:GetService("CoreGui") end) and game:GetService("CoreGui") or game.Players.LocalPlayer:WaitForChild("PlayerGui")
 local function MakeDraggable(f) local d,di,ds,sp f.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 then d=true ds=i.Position sp=f.Position i.Changed:Connect(function() if i.UserInputState==Enum.UserInputState.End then d=false end end) end end) f.InputChanged:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseMovement then di=i end end) UIS.InputChanged:Connect(function(i) if i==di and d then local dl=i.Position-ds f.Position=UDim2.new(sp.X.Scale,sp.X.Offset+dl.X,sp.Y.Scale,sp.Y.Offset+dl.Y) end end) end
-local function FadeUI(e,s,d) local t=TweenInfo.new(d,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out) local function tw(o) if not o:GetAttribute("OS") then o:SetAttribute("OS",true) if o:IsA("GuiObject") then o:SetAttribute("OBg",o.BackgroundTransparency) end if o:IsA("TextLabel") or o:IsA("TextButton") or o:IsA("TextBox") then o:SetAttribute("OTx",o.TextTransparency) end if o:IsA("UIStroke") then o:SetAttribute("OSt",o.Transparency) end if o:IsA("ScrollingFrame") then o:SetAttribute("OSc",o.ScrollBarImageTransparency) end end local p={} if o:GetAttribute("OBg") then p.BackgroundTransparency=s and o:GetAttribute("OBg") or 1 end if o:GetAttribute("OTx") then p.TextTransparency=s and o:GetAttribute("OTx") or 1 end if o:GetAttribute("OSt") then p.Transparency=s and o:GetAttribute("OSt") or 1 end if o:GetAttribute("OSc") then p.ScrollBarImageTransparency=s and o:GetAttribute("OSc") or 1 end if next(p) then if d==0 then for k,v in pairs(p) do o[k]=v end else TS:Create(o,t,p):Play() end end end tw(e) for _,c in ipairs(e:GetDescendants()) do tw(c) end end
+local function FadeUI(e,s,d) local t=TweenInfo.new(d,Enum.EasingStyle.Cubic,Enum.EasingDirection.Out) local function tw(o) if not o:GetAttribute("OS") then o:SetAttribute("OS",true) if o:IsA("GuiObject") then o:SetAttribute("OBg",o.BackgroundTransparency) end if o:IsA("TextLabel") or o:IsA("TextButton") or o:IsA("TextBox") then o:SetAttribute("OTx",o.TextTransparency) end if o:IsA("UIStroke") then o:SetAttribute("OSt",o.Transparency) end if o:IsA("ScrollingFrame") then o:SetAttribute("OSc",o.ScrollBarImageTransparency) end if o:IsA("ImageLabel") or o:IsA("ImageButton") then o:SetAttribute("OIm",o.ImageTransparency) end end local p={} if o:GetAttribute("OBg") then p.BackgroundTransparency=s and o:GetAttribute("OBg") or 1 end if o:GetAttribute("OTx") then p.TextTransparency=s and o:GetAttribute("OTx") or 1 end if o:GetAttribute("OSt") then p.Transparency=s and o:GetAttribute("OSt") or 1 end if o:GetAttribute("OSc") then p.ScrollBarImageTransparency=s and o:GetAttribute("OSc") or 1 end if o:GetAttribute("OIm") then p.ImageTransparency=s and o:GetAttribute("OIm") or 1 end if next(p) then if d==0 then for k,v in pairs(p) do o[k]=v end else TS:Create(o,t,p):Play() end end end tw(e) for _,c in ipairs(e:GetDescendants()) do tw(c) end end
 function Oversimplified:CreateWindow(tTxt,tClr,keyStr)
     if CG:FindFirstChild("OS_UI") then CG.OS_UI:Destroy() end
     local SG=Instance.new("ScreenGui",CG) SG.Name="OS_UI" SG.ResetOnSpawn=false SG.Enabled=false
@@ -56,10 +56,10 @@ function Oversimplified:CreateWindow(tTxt,tClr,keyStr)
     local iv,it=true,false
     UIS.InputBegan:Connect(function(i,g)
         if not g and i.KeyCode==Enum.KeyCode.Insert and not it then
-            if KF and KF.Parent then return end
             it=true iv=not iv
-            if iv then FadeUI(MF,false,0) MF.Visible=true FadeUI(MF,true,0.3) task.wait(0.3)
-            else FadeUI(MF,false,0.3) task.wait(0.3) MF.Visible=false end
+            local tUI = KF or MF
+            if iv then FadeUI(tUI,false,0) tUI.Visible=true FadeUI(tUI,true,0.3) task.wait(0.3)
+            else FadeUI(tUI,false,0.3) task.wait(0.3) tUI.Visible=false end
             it=false
         end
     end)
