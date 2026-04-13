@@ -1,4 +1,4 @@
--- Oversimplified by Ege
+-- Oversimplified by Vhyse
 
 local Oversimplified = {
     Theme = {
