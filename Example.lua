@@ -1,4 +1,7 @@
--- [[ Oversimplified Example Script by Vhyse ]]
+-- ========================================================================= --
+-- ||                  OVERSIMPLIFIED V6.0 - ADVANCED HUB                 || --
+-- ||                     DYNAMIC UPDATERS INTEGRATED                     || --
+-- ========================================================================= --
 
 -- [[ 1. Load the Library ]]
 local libraryLink = "https://raw.githubusercontent.com/Vhyse/Oversimplified/refs/heads/main/Library.lua"
@@ -6,15 +9,18 @@ local Oversimplified = loadstring(game:HttpGet(libraryLink))()
 
 -- [[ 2. Initialize Window ]]
 -- Usage: Oversimplified:CreateWindow("Hub Title", "HubKey")
--- If you leave Key empty like this "", the script would skip the key system and launch the hub.
+-- Leave Key empty ("") to skip the key system.
 local Window = Oversimplified:CreateWindow("Project: Oversimplified", "")
-Window:Notify("Injected Successfully", "Welcome to the advanced showcase. Cinematic backdrop is active.", 4)
+Window:Notify("Injected Successfully", "Welcome to the advanced showcase. All updaters are active.", 4)
 
 -- [[ 3. State Management ]]
 local Config = {
     Aimbot = false,
     AimbotFOV = 90,
+    TargetPart = "Head",
+    AimKey = Enum.KeyCode.E,
     ESP = false,
+    ShowNames = false,
     ESPColor = Color3.fromRGB(255, 0, 0),
     WalkSpeed = 16,
     JumpPower = 50
@@ -32,7 +38,7 @@ local SettingsTab = Window:CreateTab("Settings")
 -- ========================================== --
 --                COMBAT TAB                  --
 -- ========================================== --
-CombatTab:CreateParagraph("Aimbot Configuration", "Adjust your targeting settings here.")
+local CombatPara = CombatTab:CreateParagraph("Aimbot Configuration", "Adjust your targeting settings here.")
 
 local AimbotToggle = CombatTab:CreateToggle("Enable Aimbot", Config.Aimbot, function(state)
     Config.Aimbot = state
@@ -45,11 +51,12 @@ local FOVSlider = CombatTab:CreateSlider("Aimbot FOV", 10, 300, Config.AimbotFOV
     Config.AimbotFOV = value
 end)
 
-CombatTab:CreateDropdown("Target Part", {"Head", "Torso", "HumanoidRootPart"}, "Head", function(selected)
+local TargetDropdown = CombatTab:CreateDropdown("Target Part", {"Head", "Torso", "HumanoidRootPart"}, Config.TargetPart, function(selected)
+    Config.TargetPart = selected
     print("Aimbot target updated to:", selected)
 end)
 
-local AimKeybind = CombatTab:CreateKeybind("Aimbot Lock Key", Enum.KeyCode.E, function(key)
+local AimKeybind = CombatTab:CreateKeybind("Aimbot Lock Key", Config.AimKey, function(key)
     if Config.Aimbot then
         print("Locking onto target with key:", key.Name)
     else
@@ -60,26 +67,24 @@ end)
 -- ========================================== --
 --               VISUALS TAB                  --
 -- ========================================== --
-VisualsTab:CreateParagraph("ESP Settings", "Configure player highlights and chams.")
+local VisualsPara = VisualsTab:CreateParagraph("ESP Settings", "Configure player highlights and chams.")
 
 local ESPToggle = VisualsTab:CreateToggle("Enable Player Box ESP", Config.ESP, function(state)
     Config.ESP = state
-    -- In a real script, you would loop through players and add/remove Highlight objects here
 end)
 
 local ESPColorPicker = VisualsTab:CreateColorPicker("Box ESP Color", Config.ESPColor, function(color)
     Config.ESPColor = color
-    -- Update existing ESP boxes to the new color dynamically
 end)
 
-VisualsTab:CreateToggle("Show Player Names", false, function(state)
-    print("Name ESP:", state)
+local NameToggle = VisualsTab:CreateToggle("Show Player Names", Config.ShowNames, function(state)
+    Config.ShowNames = state
 end)
 
 -- ========================================== --
 --             LOCAL PLAYER TAB               --
 -- ========================================== --
-PlayerTab:CreateParagraph("Character Mods", "Enhance your movement capabilities.")
+local PlayerPara = PlayerTab:CreateParagraph("Character Mods", "Enhance your movement capabilities.")
 
 local WSSlider = PlayerTab:CreateSlider("WalkSpeed Override", 16, 200, Config.WalkSpeed, function(value)
     Config.WalkSpeed = value
@@ -98,7 +103,7 @@ local JPSlider = PlayerTab:CreateSlider("JumpPower Override", 50, 300, Config.Ju
     end
 end)
 
-PlayerTab:CreateButton("Reset Character", function()
+local ResetBtn = PlayerTab:CreateButton("Reset Character", function()
     local char = LocalPlayer.Character
     if char and char:FindFirstChild("Humanoid") then
         char.Humanoid.Health = 0
@@ -109,34 +114,57 @@ end)
 -- ========================================== --
 --               SETTINGS TAB                 --
 -- ========================================== --
--- This tab shows off the power of the Dynamic Updaters!
-
-SettingsTab:CreateParagraph("Hub Management", "Control the script and your configurations.")
-
-SettingsTab:CreateLabel("Press 'Insert' to hide the UI seamlessly.")
+local SettingsPara = SettingsTab:CreateParagraph("Hub Management", "Use these buttons to test the v6.0 Dynamic Updaters.")
+local InfoLabel = SettingsTab:CreateLabel("Press 'Insert' to hide the UI seamlessly.")
 
 SettingsTab:CreateButton("Reset All Configs to Default", function()
-    -- We use the new dynamic :Set() methods to visually update the UI 
-    -- while simultaneously triggering their callback functions!
+    -- Resets EVERY element type across the entire script dynamically!
     
     AimbotToggle:Set(false)
     FOVSlider:Set(90)
+    TargetDropdown:Set("Head")
+    AimKeybind:Set(Enum.KeyCode.E)
     
     ESPToggle:Set(false)
+    NameToggle:Set(false)
     ESPColorPicker:Set(Color3.fromRGB(255, 0, 0))
     
     WSSlider:Set(16)
     JPSlider:Set(50)
     
-    Window:Notify("Configs Wiped", "All settings have been restored to default values safely.", 3)
+    Window:Notify("Configs Wiped", "All settings have been restored to default values.", 3)
 end)
 
--- A fun little dynamic interaction using the Input updater
-local StatusInput = SettingsTab:CreateInput("Current Status", "Idle...", function(text) end)
+SettingsTab:CreateButton("Refresh Target Dropdown (Fetch Players)", function()
+    -- Demonstrates the Dropdown :Refresh() updater
+    local playersList = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer then table.insert(playersList, p.Name) end
+    end
+    if #playersList == 0 then table.insert(playersList, "No Targets Found") end 
+    
+    TargetDropdown:Refresh(playersList, playersList[1])
+    Window:Notify("Targets Refreshed", "Aimbot dropdown now shows alive players.", 3)
+end)
+
+local StatusInput = SettingsTab:CreateInput("Current Status", "Idle...", function(text) 
+    print("User updated status to:", text)
+end)
 
 SettingsTab:CreateButton("Trigger AFK Mode", function()
-    -- Dynamically update the input box text and its title
+    -- Demonstrates the Input, Slider, Label, and Paragraph updaters
     StatusInput:Set("User is currently AFK.", "AFK Mode Active:")
-    WSSlider:Set(0) -- Freeze the player dynamically
-    Window:Notify("AFK Mode", "You are frozen. Reset configs to move again.", 3)
+    WSSlider:Set(0)
+    JPSlider:Set(0)
+    
+    InfoLabel:Set("AFK MODE ENGAGED. PLEASE RESET CONFIGS.")
+    SettingsPara:Set("Hub Frozen", "You have triggered AFK mode. Movement is disabled.")
+    
+    Window:Notify("AFK Mode", "You are frozen. Click 'Reset All Configs' to move again.", 3)
+end)
+
+local SelfDestructBtn = SettingsTab:CreateButton("Unload Script", function()
+    if CG:FindFirstChild("OS_UI") then 
+        CG.OS_UI:Destroy() 
+    end
 end)
