@@ -1,4 +1,4 @@
--- Oversimplified by Vhyse
+-- Oversimplified by Vhyse | v1
 
 local Oversimplified = {
     Theme = {
@@ -157,14 +157,18 @@ function Oversimplified:CreateWindow(titleText, keyString)
     local Theme = self.Theme
 
     -- [[ PREMIUM CINEMATIC BACKDROP ]]
-    local Backdrop = Instance.new("CanvasGroup", SG)
+    -- Swapped back to 'Frame' to avoid executor CanvasGroup crashes
+    local Backdrop = Instance.new("Frame", SG)
     Backdrop.Size = UDim2.new(1, 0, 1, 0)
     Backdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Backdrop.BackgroundTransparency = 0.35
-    Backdrop.GroupTransparency = 1 
+    Backdrop.BackgroundTransparency = 1 
     Backdrop.BorderSizePixel = 0
     Backdrop.ZIndex = -1
     Backdrop.Visible = false
+    
+    -- Custom Mathematical Fading Engine
+    local fadeVal = Instance.new("NumberValue", Backdrop)
+    fadeVal.Value = 1
 
     local particles = {}
     local comets = {}
@@ -184,8 +188,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
         
         p.Position = UDim2.new(startX, 0, 0, startY)
         p.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        p.BackgroundTransparency = math.random(30, 90) / 100
         p.BorderSizePixel = 0
+        
+        local baseTrans = math.random(30, 90) / 100
+        p.BackgroundTransparency = baseTrans + fadeVal.Value
         
         local corner = Instance.new("UICorner", p)
         corner.CornerRadius = UDim.new(1, 0)
@@ -196,7 +202,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
             drift = math.random(-35, 35) / 1000, 
             sinOff = math.random(0, 100),
             xBase = startX,       
-            y = startY     
+            y = startY,
+            baseTrans = baseTrans
         })
     end
 
@@ -207,6 +214,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
         p.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         p.BorderSizePixel = 0
         p.AnchorPoint = Vector2.new(1, 0.5) 
+        p.BackgroundTransparency = fadeVal.Value
         
         local startX = math.random(-400, cam.ViewportSize.X / 2)
         local startY = math.random(-300, 100)
@@ -239,6 +247,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
         local curTick = tick()
         local limitY = cam.ViewportSize.Y + 50
         local limitX = cam.ViewportSize.X + 300
+        local currentFade = fadeVal.Value
         
         for i = #particles, 1, -1 do
             local data = particles[i]
@@ -247,6 +256,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
                 local newX = data.xBase + (math.sin(curTick + data.sinOff) * data.drift)
                 
                 data.obj.Position = UDim2.new(newX, 0, 0, data.y)
+                data.obj.BackgroundTransparency = data.baseTrans + currentFade
                 
                 if data.y > limitY then
                     data.obj:Destroy()
@@ -273,6 +283,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
                 
                 data.obj.Position = UDim2.new(0, data.x, 0, data.y)
                 data.obj.Rotation = math.deg(math.atan2(data.speedY, data.speedX))
+                data.obj.BackgroundTransparency = currentFade
                 
                 if data.y > limitY + 250 or data.x > limitX then
                     data.obj:Destroy()
@@ -407,12 +418,14 @@ function Oversimplified:CreateWindow(titleText, keyString)
         if isVisibleState then 
             isUIVisible = true
             Backdrop.Visible = true
-            TS:Create(Backdrop, TweenInfo.new(0.3), {GroupTransparency = 0}):Play()
+            TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 0.35}):Play()
+            TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 0}):Play()
             FadeUI(activeUI, false, 0)
             activeUI.Visible = true
             FadeUI(activeUI, true, 0.3)
         else 
-            TS:Create(Backdrop, TweenInfo.new(0.3), {GroupTransparency = 1}):Play()
+            TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+            TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 1}):Play()
             FadeUI(activeUI, false, 0.3)
             task.delay(0.3, function() 
                 activeUI.Visible = false
@@ -579,7 +592,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
         TS:Create(MF, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = targetSize}):Play()
         
         if isHubMin then 
-            TS:Create(Backdrop, TweenInfo.new(0.3), {GroupTransparency = 1}):Play()
+            TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+            TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 1}):Play()
             task.delay(0.3, function() 
                 Backdrop.Visible = false
                 isUIVisible = false 
@@ -587,7 +601,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
         else
             Backdrop.Visible = true
             isUIVisible = true
-            TS:Create(Backdrop, TweenInfo.new(0.3), {GroupTransparency = 0}):Play()
+            TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 0.35}):Play()
+            TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 0}):Play()
         end
     end)
     
@@ -604,7 +619,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
         
         isUIVisible = true
         Backdrop.Visible = true
-        TS:Create(Backdrop, TweenInfo.new(0.4), {GroupTransparency = 0}):Play()
+        TS:Create(Backdrop, TweenInfo.new(0.4), {BackgroundTransparency = 0.35}):Play()
+        TS:Create(fadeVal, TweenInfo.new(0.4), {Value = 0}):Play()
         
         FadeUI(activeUI, false, 0)
         activeUI.Visible = true
@@ -635,7 +651,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
             activeUI = KeyFrame
         end
         
-        TS:Create(Backdrop, TweenInfo.new(0.3), {GroupTransparency = 1}):Play()
+        TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+        TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 1}):Play()
         FadeUI(activeUI, false, 0.3)
         
         task.delay(0.3, function()
