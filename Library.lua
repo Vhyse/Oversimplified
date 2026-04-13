@@ -1,4 +1,4 @@
--- Oversimplified by Vhyse
+-- Oversimplified by Vhyse | v6
 
 local Oversimplified = {
     Theme = {
@@ -34,11 +34,16 @@ local function MakeDraggable(f)
             di = i
         end
     end)
-    UIS.InputChanged:Connect(function(i)
+    local dragConn = UIS.InputChanged:Connect(function(i)
         if i == di and d then
             local dl = i.Position - ds
             f.Position = UDim2.new(sp.X.Scale, sp.X.Offset + dl.X, sp.Y.Scale, sp.Y.Offset + dl.Y)
         end
+    end)
+    
+    -- Prevent memory leaks by disconnecting when the frame is destroyed
+    f.Destroying:Connect(function()
+        if dragConn then dragConn:Disconnect() end
     end)
 end
 
@@ -153,7 +158,7 @@ function Oversimplified:CreateWindow(tTxt, keyStr)
         SpawnParticle(math.random(-100, math.max(cam.ViewportSize.Y, 1000)))
     end
 
-    RS.RenderStepped:Connect(function(dt)
+    local renderConnection = RS.RenderStepped:Connect(function(dt)
         if not isUIVisible then return end
         
         local curTick = tick()
@@ -465,7 +470,7 @@ function Oversimplified:CreateWindow(tTxt, keyStr)
         FadeUI(tUI, true, 0.4) 
     end)
     
-    UIS.InputBegan:Connect(function(i, g) 
+    local toggleConnection = UIS.InputBegan:Connect(function(i, g) 
         if not g and i.KeyCode == Enum.KeyCode.Insert then 
             SetUIVisible(not iv) 
         end 
@@ -474,6 +479,23 @@ function Oversimplified:CreateWindow(tTxt, keyStr)
     local WO = {CT = nil}
     local isS = false
     
+    -- [[ UNLOAD MECHANIC ]]
+    function WO:Unload()
+        -- 1. Sever background loops to stop memory leaks
+        if renderConnection then renderConnection:Disconnect() end
+        if toggleConnection then toggleConnection:Disconnect() end
+        
+        -- 2. Fade out UI elegantly
+        local tUI = (KF and KF.Parent) and KF or MF
+        TS:Create(Backdrop, TweenInfo.new(0.3), {GroupTransparency = 1}):Play()
+        FadeUI(tUI, false, 0.3)
+        
+        -- 3. Nuke the ScreenGui after the fade completes
+        task.delay(0.3, function()
+            if SG then SG:Destroy() end
+        end)
+    end
+
     function WO:Notify(ti, de, dr) 
         dr = dr or 3
         local NW = Instance.new("Frame", NC)
