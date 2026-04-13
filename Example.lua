@@ -5,6 +5,8 @@ local libraryLink = "https://raw.githubusercontent.com/Vhyse/Oversimplified/refs
 local Oversimplified = loadstring(game:HttpGet(libraryLink))()
 
 -- [[ 2. Initialize Window ]]
+-- Usage: Oversimplified:CreateWindow("Hub Title", "HubKey")
+-- If you leave Key empty like this "", the script would skip the key system and launch the hub.
 local Window = Oversimplified:CreateWindow("Project: Oversimplified", "")
 Window:Notify("Injected Successfully", "Welcome to the advanced showcase. Cinematic backdrop is active.", 4)
 
