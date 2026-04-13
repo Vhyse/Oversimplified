@@ -1,4 +1,4 @@
--- Oversimplified by Vhyse
+-- Oversimplified by Ege
 
 local Oversimplified={
     Theme={Bg=Color3.fromRGB(12,12,14),Border=Color3.fromRGB(45,45,50),Text=Color3.fromRGB(220,220,225),Active=Color3.fromRGB(255,255,255),Inactive=Color3.fromRGB(20,20,24),SliderBg=Color3.fromRGB(24,24,28),DarkerBg=Color3.fromRGB(8,8,10)}
@@ -18,26 +18,21 @@ function Oversimplified:CreateWindow(tTxt, arg2, arg3)
     local WaveObjs={}
     local function ApplyW(o)
         local g=Instance.new("UIGradient",o) 
-        local b=Color3.fromRGB(130,130,135)
+        local b=Color3.fromRGB(160,160,165)
         local w=Color3.fromRGB(255,255,255)
-        -- 4 perfect wave periods to seamlessly loop endlessly
         g.Color=ColorSequence.new({
             ColorSequenceKeypoint.new(0,b),
-            ColorSequenceKeypoint.new(0.125,w),
-            ColorSequenceKeypoint.new(0.25,b),
-            ColorSequenceKeypoint.new(0.375,w),
-            ColorSequenceKeypoint.new(0.5,b),
-            ColorSequenceKeypoint.new(0.625,w),
-            ColorSequenceKeypoint.new(0.75,b),
-            ColorSequenceKeypoint.new(0.875,w),
+            ColorSequenceKeypoint.new(0.35,b),
+            ColorSequenceKeypoint.new(0.5,w),
+            ColorSequenceKeypoint.new(0.65,b),
             ColorSequenceKeypoint.new(1,b)
         }) 
         g.Rotation=0 
         table.insert(WaveObjs,g)
     end
-    -- Modulo trick: Shifts the gradient perfectly over one 0.25 period so it loops forever without pausing
+    -- Flawless left-to-right sweep. Crosses screen slowly, brief pause offscreen, seamlessly repeats.
     game:GetService("RunService").RenderStepped:Connect(function() 
-        local off = (tick() * 1.2) % 0.25 
+        local off = (tick() * 0.8) % 1.4 - 0.7 
         for _,g in ipairs(WaveObjs) do if g.Parent then g.Offset=Vector2.new(off,0) end end 
     end)
 
@@ -79,7 +74,7 @@ function Oversimplified:CreateWindow(tTxt, arg2, arg3)
         local KD=Instance.new("Frame",KF) KD.Size=UDim2.new(1,0,0,1) KD.Position=UDim2.new(0,0,0,30) KD.BackgroundColor3=Theme.Border KD.BorderSizePixel=0
         local KInfo=Instance.new("TextLabel",KF) KInfo.Size=UDim2.new(1,-20,0,20) KInfo.Position=UDim2.new(0,10,0,45) KInfo.BackgroundTransparency=1 KInfo.Text="Please enter the access key to continue." KInfo.TextColor3=Theme.Text KInfo.Font=Enum.Font.Gotham KInfo.TextSize=12
         local KInput=Instance.new("TextBox",KF) KInput.Size=UDim2.new(1,-20,0,30) KInput.Position=UDim2.new(0,10,0,70) KInput.BackgroundColor3=Theme.DarkerBg KInput.TextColor3=Theme.Text KInput.PlaceholderText="Enter Key Here..." KInput.Font=Enum.Font.Gotham KInput.TextSize=12 KInput.ClearTextOnFocus=false Instance.new("UICorner",KInput).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",KInput).Color=Theme.Border
-        local KBtn=Instance.new("TextButton",KF) KBtn.Size=UDim2.new(1,-20,0,30) KBtn.Position=UDim2.new(0,10,0,110) KBtn.BackgroundColor3=Theme.Inactive KBtn.TextColor3=Theme.Text KBtn.Text="" KBtn.AutoButtonColor=false Instance.new("UICorner",KBtn).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",KBtn).Color=Theme.Border
+        local KBtn=Instance.new("TextButton",KF) KBtn.Size=UDim2.new(1,-20,0,30) KBtn.Position=UDim2.new(0,10,0,110) KBtn.BackgroundColor3=Theme.Inactive KBtn.Text="" KBtn.AutoButtonColor=false Instance.new("UICorner",KBtn).CornerRadius=UDim.new(0,4) Instance.new("UIStroke",KBtn).Color=Theme.Border
         local KBtnTxt=Instance.new("TextLabel",KBtn) KBtnTxt.Size=UDim2.new(1,0,1,0) KBtnTxt.BackgroundTransparency=1 KBtnTxt.Text="Submit Key" KBtnTxt.TextColor3=Theme.Text KBtnTxt.Font=Enum.Font.GothamBold KBtnTxt.TextSize=13 ApplyW(KBtnTxt)
         
         KBtn.MouseButton1Click:Connect(function()
@@ -140,7 +135,7 @@ function Oversimplified:CreateWindow(tTxt, arg2, arg3)
             local Lb=Instance.new("TextLabel",C) Lb.Size=UDim2.new(1,-60,1,0) Lb.Position=UDim2.new(0,10,0,0) Lb.BackgroundTransparency=1 Lb.Text=tx Lb.TextColor3=Theme.Text Lb.Font=Enum.Font.GothamBold Lb.TextSize=13 Lb.TextXAlignment=Enum.TextXAlignment.Left ApplyW(Lb)
             local Tr=Instance.new("Frame",C) Tr.Size=UDim2.new(0,36,0,18) Tr.Position=UDim2.new(1,-46,0.5,-9) Tr.BackgroundColor3=df and tColor or Theme.Inactive Instance.new("UICorner",Tr).CornerRadius=UDim.new(1,0)
             local Ci=Instance.new("Frame",Tr) Ci.Size=UDim2.new(0,14,0,14) Ci.Position=df and UDim2.new(1,-16,0.5,-7) or UDim2.new(0,2,0.5,-7) Ci.BackgroundColor3=df and Theme.Bg or Color3.fromRGB(255,255,255) Instance.new("UICorner",Ci).CornerRadius=UDim.new(1,0)
-            local st=df local function upd(s) st=s cb(st) TS:Create(Tr,TweenInfo.new(0.2),{BackgroundColor3=st and tColor or Theme.Inactive}):Play() TS:Create(Ci,TweenInfo.new(0.2),{Position=st and UDim2.new(1,-16,0.5,-7) or UDim2.new(0,2,0.5,-7),BackgroundColor3=st and Theme.Bg or Color3.fromRGB(255,255,255)}):Play() end
+            local st=df local function upd(s) st=s cb(st) TS:Create(Tr,TweenInfo.new(0.2),{BackgroundColor3=st and tColor or Theme.Inactive}):Play() TS:Create(Ci,TweenInfo.new(0.2),{Position=st and UDim2.new(1,-16,0.5,-7) or UDim2.new(0,2,0.5,-7), BackgroundColor3=st and Theme.Bg or Color3.fromRGB(255,255,255)}):Play() end
             C.MouseButton1Click:Connect(function() upd(not st) end)
             local TO={} function TO:Set(s) upd(s) end return TO
         end
