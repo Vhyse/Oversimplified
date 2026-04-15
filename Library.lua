@@ -1,4 +1,4 @@
--- Oversimplified by Vhyse | v1
+-- Oversimplified by Vhyse | v1.2
 
 local Oversimplified = {
     Theme = {
@@ -12,18 +12,23 @@ local Oversimplified = {
     }
 }
 
+-- Use GetService for everything to bypass dynamic anti-cheat renaming
 local TS = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
 local RS = game:GetService("RunService")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
 
 local function GetCoreGui()
     local success, result = pcall(function()
+        if gethui then return gethui() end
         return game:GetService("CoreGui")
     end)
     if success and result then
         return result
     end
-    return game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    -- Fallback uses Players service directly, avoiding game.Players
+    return Players.LocalPlayer:WaitForChild("PlayerGui")
 end
 
 local CG = GetCoreGui()
@@ -157,7 +162,6 @@ function Oversimplified:CreateWindow(titleText, keyString)
     local Theme = self.Theme
 
     -- [[ PREMIUM CINEMATIC BACKDROP ]]
-    -- Swapped back to 'Frame' to avoid executor CanvasGroup crashes
     local Backdrop = Instance.new("Frame", SG)
     Backdrop.Size = UDim2.new(1, 0, 1, 0)
     Backdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -166,7 +170,6 @@ function Oversimplified:CreateWindow(titleText, keyString)
     Backdrop.ZIndex = -1
     Backdrop.Visible = false
     
-    -- Custom Mathematical Fading Engine
     local fadeVal = Instance.new("NumberValue", Backdrop)
     fadeVal.Value = 1
 
@@ -174,7 +177,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
     local comets = {}
     local maxParticles = 200 
     local isUIVisible = false
-    local cam = workspace.CurrentCamera
+    local cam = Workspace.CurrentCamera
 
     local function SpawnParticle(startY)
         local size = math.random(3, 6) 
@@ -201,7 +204,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
             speed = math.random(100, 250),
             drift = math.random(-35, 35) / 1000, 
             sinOff = math.random(0, 100),
-            xBase = startX,       
+            xBase = startX,        
             y = startY,
             baseTrans = baseTrans
         })
@@ -367,7 +370,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
     Avatar.Size = UDim2.new(0, 24, 0, 24)
     Avatar.Position = UDim2.new(0, 8, 0.5, -12)
     Avatar.BackgroundColor3 = Theme.DarkerBg
-    Avatar.Image = "rbxthumb://type=AvatarHeadShot&id="..game.Players.LocalPlayer.UserId.."&w=150&h=150"
+    Avatar.Image = "rbxthumb://type=AvatarHeadShot&id="..Players.LocalPlayer.UserId.."&w=150&h=150"
     
     local AvatarCorner = Instance.new("UICorner", Avatar)
     AvatarCorner.CornerRadius = UDim.new(1, 0)
@@ -379,7 +382,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
     NameLbl.Size = UDim2.new(1, -44, 1, 0)
     NameLbl.Position = UDim2.new(0, 38, 0, 0)
     NameLbl.BackgroundTransparency = 1
-    NameLbl.Text = game.Players.LocalPlayer.DisplayName
+    NameLbl.Text = Players.LocalPlayer.DisplayName
     NameLbl.TextColor3 = Theme.Text
     NameLbl.Font = Enum.Font.GothamBold
     NameLbl.TextSize = 11
@@ -391,12 +394,17 @@ function Oversimplified:CreateWindow(titleText, keyString)
     CC.Position = UDim2.new(0, 130, 0, 35)
     CC.BackgroundTransparency = 1
     
-    local NC = Instance.new("Frame", SG)
-    NC.Size = UDim2.new(0, 250, 1, -40)
-    NC.Position = UDim2.new(1, -270, 0, 20)
-    NC.BackgroundTransparency = 1
+    local NC = Instance.new("ScreenGui", CG)
+    NC.Name = "OS_Notifications"
+    NC.ResetOnSpawn = false
+    NC.IgnoreGuiInset = true
     
-    local NL = Instance.new("UIListLayout", NC)
+    local NCHolder = Instance.new("Frame", NC)
+    NCHolder.Size = UDim2.new(0, 250, 1, -40)
+    NCHolder.Position = UDim2.new(1, -270, 0, 20)
+    NCHolder.BackgroundTransparency = 1
+    
+    local NL = Instance.new("UIListLayout", NCHolder)
     NL.Padding = UDim.new(0, 10)
     NL.HorizontalAlignment = Enum.HorizontalAlignment.Center
     NL.VerticalAlignment = Enum.VerticalAlignment.Bottom
@@ -659,6 +667,9 @@ function Oversimplified:CreateWindow(titleText, keyString)
             if SG then 
                 SG:Destroy() 
             end
+            if NC then
+                NC:Destroy()
+            end
         end)
     end
 
@@ -667,7 +678,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
             duration = 3
         end
         
-        local NW = Instance.new("Frame", NC)
+        local NW = Instance.new("Frame", NCHolder)
         NW.Size = UDim2.new(1, 0, 0, 60)
         NW.BackgroundTransparency = 1
         
