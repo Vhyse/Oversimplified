@@ -148,6 +148,8 @@ local StatusInput = SettingsTab:CreateInput("Current Status", "Idle...", functio
     print("User updated status to:", text)
 end)
 
+Oversimplified:CreateBackgroundToggle(SettingsTab) -- Switch that adds a toggle for the user to turn on/off the background
+
 SettingsTab:CreateButton("Trigger AFK Mode", function()
     -- Demonstrates the Input, Slider, Label, and Paragraph updaters
     StatusInput:Set("User is currently AFK.", "AFK Mode Active:")
