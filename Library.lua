@@ -1,4 +1,4 @@
--- Oversimplified by Vhyse | v1.2
+-- Oversimplified by Vhyse | v1.3
 
 local Oversimplified = {
     Theme = {
@@ -9,7 +9,8 @@ local Oversimplified = {
         Inactive = Color3.fromRGB(20, 20, 24),
         SliderBg = Color3.fromRGB(24, 24, 28),
         DarkerBg = Color3.fromRGB(8, 8, 10)
-    }
+    },
+    BackgroundVisible = true -- Global state for the cinematic background
 }
 
 -- Use GetService for everything to bypass dynamic anti-cheat renaming
@@ -173,6 +174,27 @@ function Oversimplified:CreateWindow(titleText, keyString)
     local fadeVal = Instance.new("NumberValue", Backdrop)
     fadeVal.Value = 1
 
+    -- [[ NEW FEATURE: Background Toggle Method ]]
+    function self:CreateBackgroundToggle(tabContainer)
+        local toggle = tabContainer:CreateToggle("Hub Background", self.BackgroundVisible, function(state)
+            self.BackgroundVisible = state
+            if state then
+                if SG.Enabled and Backdrop.Parent then
+                    Backdrop.Visible = true
+                    TS:Create(Backdrop, TweenInfo.new(0.5), {BackgroundTransparency = 0.35}):Play()
+                    TS:Create(fadeVal, TweenInfo.new(0.5), {Value = 0}):Play()
+                end
+            else
+                TS:Create(Backdrop, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+                TS:Create(fadeVal, TweenInfo.new(0.5), {Value = 1}):Play()
+                task.delay(0.5, function() 
+                    if not self.BackgroundVisible then Backdrop.Visible = false end 
+                end)
+            end
+        end)
+        return toggle
+    end
+
     local particles = {}
     local comets = {}
     local maxParticles = 200 
@@ -270,7 +292,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
             end
         end
         
-        if #particles < maxParticles then 
+        -- Only spawn new particles if the background is visible
+        if self.BackgroundVisible and #particles < maxParticles then 
             local randomSpawnCount = math.random(1, 3)
             for _ = 1, randomSpawnCount do
                 SpawnParticle(-20)
@@ -297,7 +320,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
             end
         end
 
-        if math.random(1, 100) == 1 then 
+        if self.BackgroundVisible and math.random(1, 100) == 1 then 
             SpawnComet() 
         end
     end)
@@ -425,15 +448,19 @@ function Oversimplified:CreateWindow(titleText, keyString)
         
         if isVisibleState then 
             isUIVisible = true
-            Backdrop.Visible = true
-            TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 0.35}):Play()
-            TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 0}):Play()
+            if self.BackgroundVisible then
+                Backdrop.Visible = true
+                TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 0.35}):Play()
+                TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 0}):Play()
+            end
             FadeUI(activeUI, false, 0)
             activeUI.Visible = true
             FadeUI(activeUI, true, 0.3)
         else 
-            TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
-            TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 1}):Play()
+            if self.BackgroundVisible then
+                TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+                TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 1}):Play()
+            end
             FadeUI(activeUI, false, 0.3)
             task.delay(0.3, function() 
                 activeUI.Visible = false
@@ -607,10 +634,12 @@ function Oversimplified:CreateWindow(titleText, keyString)
                 isUIVisible = false 
             end)
         else
-            Backdrop.Visible = true
-            isUIVisible = true
-            TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 0.35}):Play()
-            TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 0}):Play()
+            if self.BackgroundVisible then
+                Backdrop.Visible = true
+                isUIVisible = true
+                TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 0.35}):Play()
+                TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 0}):Play()
+            end
         end
     end)
     
@@ -626,9 +655,11 @@ function Oversimplified:CreateWindow(titleText, keyString)
         end
         
         isUIVisible = true
-        Backdrop.Visible = true
-        TS:Create(Backdrop, TweenInfo.new(0.4), {BackgroundTransparency = 0.35}):Play()
-        TS:Create(fadeVal, TweenInfo.new(0.4), {Value = 0}):Play()
+        if self.BackgroundVisible then
+            Backdrop.Visible = true
+            TS:Create(Backdrop, TweenInfo.new(0.4), {BackgroundTransparency = 0.35}):Play()
+            TS:Create(fadeVal, TweenInfo.new(0.4), {Value = 0}):Play()
+        end
         
         FadeUI(activeUI, false, 0)
         activeUI.Visible = true
@@ -1545,4 +1576,5 @@ function Oversimplified:CreateWindow(titleText, keyString)
     end
     return WO
 end
+
 return Oversimplified
