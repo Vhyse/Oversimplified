@@ -2,7 +2,7 @@
 
 -- [[ 1. Load the Library ]]
 -- (Ensure you have executed the source code first, or load it via URL if hosted)
--- local Oversimplified = loadstring(game:HttpGet("YOUR_RAW_GITHUB_LINK_HERE"))()
+local Oversimplified = loadstring(game:HttpGet("https://raw.githubusercontent.com/Vhyse/Oversimplified/refs/heads/main/Library.lua"))()
 local Oversimplified = getgenv().Oversimplified -- Assuming the source is loaded in your environment
 
 -- [[ 2. Initialize Window ]]
@@ -37,7 +37,7 @@ local PlayerTab = Window:CreateTab("Local Player")
 -- Testing the new dynamic automatic wrapping for long paragraphs
 local CombatPara = CombatTab:CreateParagraph(
     "Aimbot Configuration", 
-    "Adjust your targeting settings here. Notice how this description is incredibly long, but because of the AutomaticSize system, the UI seamlessly pushes the rest of the text downward and adjusts the boundaries without breaking anything at all!"
+    "Adjust your targeting settings here. Notice how this description is incredibly long, but because of the AutomaticSize system you requested, the UI seamlessly pushes the rest of the text downward and adjusts the boundaries without breaking anything at all!"
 )
 
 local AimbotToggle = CombatTab:CreateToggle("Enable Aimbot", Config.Aimbot, function(state)
@@ -124,7 +124,7 @@ SettingsTab:CreateButton("Refresh Target Dropdown (Fetch Players)", function()
     Window:Notify("Targets Refreshed", "Aimbot dropdown now shows alive players.", 3)
 end)
 
--- Testing the new true/false 'clearOnLeave' property for TextBoxes
+-- Testing the new true/false 'clearOnLeave' property for TextBoxes (set to true here)
 local StatusInput = SettingsTab:CreateInput("Current Status", "Idle...", true, function(text) 
     print("User updated status to:", text)
 end)
