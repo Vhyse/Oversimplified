@@ -1,4 +1,4 @@
--- Oversimplified by Vhyse | v1.6
+-- Oversimplified by Vhyse | v1.7
 
 local Oversimplified = {
     Theme = {
@@ -346,14 +346,17 @@ function Oversimplified:CreateWindow(titleText, keyString)
     TC.CanvasSize = UDim2.new(0, 0, 0, 0)
     TC.AutomaticCanvasSize = Enum.AutomaticSize.Y
     
-    local TL = Instance.new("UIListLayout", TC)
+    local TL = Instance.new("UIListLayout")
     TL.Padding = UDim.new(0, 5)
     TL.HorizontalAlignment = Enum.HorizontalAlignment.Center
     TL.SortOrder = Enum.SortOrder.LayoutOrder
+    TL.Parent = TC
     
-    local TCPadding = Instance.new("UIPadding", TC)
-    TCPPadding.PaddingTop = UDim.new(0, 2)
-    TCPPadding.PaddingBottom = UDim.new(0, 2)
+    -- SAFETY PATCH: Create first, set properties, then parent
+    local TabContainerPadding = Instance.new("UIPadding")
+    TabContainerPadding.PaddingTop = UDim.new(0, 2)
+    TabContainerPadding.PaddingBottom = UDim.new(0, 2)
+    TabContainerPadding.Parent = TC
     
     local ProfFrame = Instance.new("Frame", MF)
     ProfFrame.Size = UDim2.new(0, 130, 0, 40)
@@ -404,10 +407,11 @@ function Oversimplified:CreateWindow(titleText, keyString)
     NCHolder.Position = UDim2.new(1, -270, 0, 20)
     NCHolder.BackgroundTransparency = 1
     
-    local NL = Instance.new("UIListLayout", NCHolder)
+    local NL = Instance.new("UIListLayout")
     NL.Padding = UDim.new(0, 10)
     NL.HorizontalAlignment = Enum.HorizontalAlignment.Center
     NL.VerticalAlignment = Enum.VerticalAlignment.Bottom
+    NL.Parent = NCHolder
     
     local isVisibleState = true
     local isTweening = false
@@ -581,24 +585,17 @@ function Oversimplified:CreateWindow(titleText, keyString)
         end)
 
         local isKeyMin = false
-        mkMac(KeyFrame, Color3.fromRGB(0, 202, 78), -62, function() 
-        end)
-        
+        mkMac(KeyFrame, Color3.fromRGB(0, 202, 78), -62, function() end)
         mkMac(KeyFrame, Color3.fromRGB(255, 189, 68), -41, function()
             isKeyMin = not isKeyMin
             local targetSize = isKeyMin and UDim2.new(0, 350, 0, 30) or UDim2.new(0, 350, 0, 150)
             TS:Create(KeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = targetSize}):Play()
         end)
-        
-        mkMac(KeyFrame, Color3.fromRGB(255, 96, 92), -20, function() 
-            SetUIVisible(false) 
-        end)
+        mkMac(KeyFrame, Color3.fromRGB(255, 96, 92), -20, function() SetUIVisible(false) end)
     end
 
     local isHubMin = false
-    mkMac(MF, Color3.fromRGB(0, 202, 78), -62, function() 
-    end)
-    
+    mkMac(MF, Color3.fromRGB(0, 202, 78), -62, function() end)
     mkMac(MF, Color3.fromRGB(255, 189, 68), -41, function()
         isHubMin = not isHubMin
         local targetSize = isHubMin and UDim2.new(0, 520, 0, 30) or UDim2.new(0, 520, 0, 380)
@@ -620,17 +617,12 @@ function Oversimplified:CreateWindow(titleText, keyString)
             end
         end
     end)
-    
-    mkMac(MF, Color3.fromRGB(255, 96, 92), -20, function() 
-        SetUIVisible(false) 
-    end)
+    mkMac(MF, Color3.fromRGB(255, 96, 92), -20, function() SetUIVisible(false) end)
 
     task.delay(0.15, function() 
         SG.Enabled = true
         local activeUI = MF
-        if KeyFrame then
-            activeUI = KeyFrame
-        end
+        if KeyFrame then activeUI = KeyFrame end
         
         isUIVisible = true
         if self.BackgroundVisible then
@@ -656,36 +648,24 @@ function Oversimplified:CreateWindow(titleText, keyString)
     local isSwitchingTab = false
     
     function WO:Unload()
-        if renderConnection then 
-            renderConnection:Disconnect() 
-        end
-        if toggleConnection then 
-            toggleConnection:Disconnect() 
-        end
+        if renderConnection then renderConnection:Disconnect() end
+        if toggleConnection then toggleConnection:Disconnect() end
         
         local activeUI = MF
-        if KeyFrame and KeyFrame.Parent then
-            activeUI = KeyFrame
-        end
+        if KeyFrame and KeyFrame.Parent then activeUI = KeyFrame end
         
         TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
         TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 1}):Play()
         FadeUI(activeUI, false, 0.3)
         
         task.delay(0.3, function()
-            if SG then 
-                SG:Destroy() 
-            end
-            if NC then
-                NC:Destroy()
-            end
+            if SG then SG:Destroy() end
+            if NC then NC:Destroy() end
         end)
     end
 
     function WO:Notify(titleText, descText, duration) 
-        if not duration then
-            duration = 3
-        end
+        if not duration then duration = 3 end
         
         local NW = Instance.new("Frame", NCHolder)
         NW.Size = UDim2.new(1, 0, 0, 60)
@@ -766,14 +746,17 @@ function Oversimplified:CreateWindow(titleText, keyString)
         TSc.CanvasSize = UDim2.new(0, 0, 0, 0)
         TSc.AutomaticCanvasSize = Enum.AutomaticSize.Y
         
-        local L = Instance.new("UIListLayout", TSc)
+        local L = Instance.new("UIListLayout")
         L.Padding = UDim.new(0, 6)
         L.HorizontalAlignment = Enum.HorizontalAlignment.Center
         L.SortOrder = Enum.SortOrder.LayoutOrder
+        L.Parent = TSc
         
-        local TScPadding = Instance.new("UIPadding", TSc)
-        TScPadding.PaddingTop = UDim.new(0, 2)
-        TScPadding.PaddingBottom = UDim.new(0, 2)
+        -- SAFETY PATCH
+        local ScrollContentPadding = Instance.new("UIPadding")
+        ScrollContentPadding.PaddingTop = UDim.new(0, 2)
+        ScrollContentPadding.PaddingBottom = UDim.new(0, 2)
+        ScrollContentPadding.Parent = TSc
         
         TB.MouseButton1Click:Connect(function() 
             if WO.CT == tabName or isSwitchingTab then return end
@@ -834,15 +817,18 @@ function Oversimplified:CreateWindow(titleText, keyString)
             cStroke.Color = Theme.Border
             cStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             
-            local cLayout = Instance.new("UIListLayout", C)
+            local cLayout = Instance.new("UIListLayout")
             cLayout.SortOrder = Enum.SortOrder.LayoutOrder
             cLayout.Padding = UDim.new(0, 2)
+            cLayout.Parent = C
             
-            local cPadding = Instance.new("UIPadding", C)
-            cPadding.PaddingTop = UDim.new(0, 5)
-            cPadding.PaddingBottom = UDim.new(0, 5)
-            cPadding.PaddingLeft = UDim.new(0, 10)
-            cPadding.PaddingRight = UDim.new(0, 10)
+            -- SAFETY PATCH
+            local ParagraphPadding = Instance.new("UIPadding")
+            ParagraphPadding.PaddingTop = UDim.new(0, 5)
+            ParagraphPadding.PaddingBottom = UDim.new(0, 5)
+            ParagraphPadding.PaddingLeft = UDim.new(0, 10)
+            ParagraphPadding.PaddingRight = UDim.new(0, 10)
+            ParagraphPadding.Parent = C
             
             local LT = Instance.new("TextLabel", C)
             LT.LayoutOrder = 1
@@ -868,12 +854,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
             
             local PO = {}
             function PO:Set(newTitle, newDesc) 
-                if newTitle then 
-                    LT.Text = newTitle 
-                end
-                if newDesc then 
-                    LD.Text = newDesc 
-                end 
+                if newTitle then LT.Text = newTitle end
+                if newDesc then LD.Text = newDesc end 
             end
             return PO
         end
@@ -892,9 +874,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
             
             local LO = {}
             function LO:Set(newText) 
-                if newText then 
-                    Lb.Text = newText 
-                end 
+                if newText then Lb.Text = newText end 
             end
             return LO
         end
@@ -934,9 +914,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
             
             local BO = {}
             function BO:Set(newText) 
-                if newText then
-                    Lb.Text = newText 
-                end
+                if newText then Lb.Text = newText end
             end
             return BO
         end
@@ -1012,12 +990,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
             
             local TO = {}
             function TO:Set(newState, newTitle) 
-                if newTitle then 
-                    Lb.Text = newTitle 
-                end
-                if newState ~= nil and newState ~= currentState then 
-                    updateToggle(newState) 
-                end 
+                if newTitle then Lb.Text = newTitle end
+                if newState ~= nil and newState ~= currentState then updateToggle(newState) end 
             end
             return TO
         end
@@ -1110,11 +1084,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
             end)
             
             local SO = {}
-            function SO:Set(val) 
-                if val then
-                    updateSliderValue(val) 
-                end
-            end
+            function SO:Set(val) if val then updateSliderValue(val) end end
             return SO
         end
         
@@ -1162,19 +1132,13 @@ function Oversimplified:CreateWindow(titleText, keyString)
             
             IB.FocusLost:Connect(function() 
                 callback(IB.Text)
-                if clearOnLeave then
-                    IB.Text = ""
-                end
+                if clearOnLeave then IB.Text = "" end
             end)
             
             local IO = {}
             function IO:Set(newText, newTitle) 
-                if newTitle then 
-                    Lb.Text = newTitle 
-                end
-                if newText then 
-                    IB.Text = newText 
-                end 
+                if newTitle then Lb.Text = newTitle end
+                if newText then IB.Text = newText end 
             end
             return IO
         end
@@ -1204,9 +1168,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
             Lb.TextXAlignment = Enum.TextXAlignment.Left
             
             local startText = "None"
-            if defaultKey then
-                startText = defaultKey.Name
-            end
+            if defaultKey then startText = defaultKey.Name end
             
             local BB = Instance.new("TextButton", C)
             BB.Size = UDim2.new(0, 80, 0, 24)
@@ -1241,11 +1203,9 @@ function Oversimplified:CreateWindow(titleText, keyString)
                     if input.UserInputType == Enum.UserInputType.Keyboard then 
                         listening = false
                         if input.KeyCode == Enum.KeyCode.Backspace then 
-                            currentKey = nil
-                            Txt.Text = "None" 
+                            currentKey = nil; Txt.Text = "None" 
                         else 
-                            currentKey = input.KeyCode
-                            Txt.Text = currentKey.Name 
+                            currentKey = input.KeyCode; Txt.Text = currentKey.Name 
                         end
                         connection:Disconnect() 
                     end 
@@ -1253,19 +1213,13 @@ function Oversimplified:CreateWindow(titleText, keyString)
             end)
             
             UIS.InputBegan:Connect(function(input, gameProcessed) 
-                if not listening and not gameProcessed and currentKey and input.KeyCode == currentKey then 
-                    callback(currentKey) 
-                end 
+                if not listening and not gameProcessed and currentKey and input.KeyCode == currentKey then callback(currentKey) end 
             end)
             
             local KO = {}
             function KO:Set(newKey) 
                 currentKey = newKey
-                if newKey then
-                    Txt.Text = newKey.Name
-                else
-                    Txt.Text = "None" 
-                end
+                if newKey then Txt.Text = newKey.Name else Txt.Text = "None" end
             end
             return KO
         end
@@ -1325,23 +1279,18 @@ function Oversimplified:CreateWindow(titleText, keyString)
             OC.Position = UDim2.new(0, 10, 0, 34)
             OC.BackgroundTransparency = 1
             
-            local ocLayout = Instance.new("UIListLayout", OC)
+            local ocLayout = Instance.new("UIListLayout")
             ocLayout.Padding = UDim.new(0, 2)
+            ocLayout.Parent = OC
             
             local isOpen = false
             
             local function toggleDropdown() 
                 isOpen = not isOpen
-                if isOpen then
-                    Ic.Text = "-"
-                else
-                    Ic.Text = "+"
-                end
+                if isOpen then Ic.Text = "-" else Ic.Text = "+" end
                 
                 local targetHeight = 34
-                if isOpen then
-                    targetHeight = 34 + (#optionsArray * 26) + 5
-                end
+                if isOpen then targetHeight = 34 + (#optionsArray * 26) + 5 end
                 
                 TS:Create(C, TweenInfo.new(0.2), {Size = UDim2.new(1, -14, 0, targetHeight)}):Play() 
             end
@@ -1350,9 +1299,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
             
             local function buildOptions(arr) 
                 for _, child in ipairs(OC:GetChildren()) do 
-                    if child:IsA("TextButton") then 
-                        child:Destroy() 
-                    end 
+                    if child:IsA("TextButton") then child:Destroy() end 
                 end
                 
                 for _, optionStr in ipairs(arr) do 
@@ -1380,17 +1327,12 @@ function Oversimplified:CreateWindow(titleText, keyString)
             
             local DO = {}
             function DO:Set(newSelection) 
-                if newSelection then
-                    SL.Text = newSelection
-                    callback(newSelection) 
-                end
+                if newSelection then SL.Text = newSelection; callback(newSelection) end
             end
             function DO:Refresh(newArray, newDefault) 
                 optionsArray = newArray
                 buildOptions(optionsArray)
-                if newDefault then 
-                    DO:Set(newDefault) 
-                end
+                if newDefault then DO:Set(newDefault) end
                 if isOpen then 
                     local targetHeight = 34 + (#optionsArray * 26) + 5
                     TS:Create(C, TweenInfo.new(0.2), {Size = UDim2.new(1, -14, 0, targetHeight)}):Play() 
@@ -1447,16 +1389,15 @@ function Oversimplified:CreateWindow(titleText, keyString)
             SF.Position = UDim2.new(0, 10, 0, 34)
             SF.BackgroundTransparency = 1
             
-            local sfLayout = Instance.new("UIListLayout", SF)
+            local sfLayout = Instance.new("UIListLayout")
             sfLayout.Padding = UDim.new(0, 5)
+            sfLayout.Parent = SF
             
             local isOpen = false
             PB.MouseButton1Click:Connect(function() 
                 isOpen = not isOpen
                 local targetHeight = 34
-                if isOpen then
-                    targetHeight = 120
-                end
+                if isOpen then targetHeight = 120 end
                 TS:Create(C, TweenInfo.new(0.2), {Size = UDim2.new(1, -14, 0, targetHeight)}):Play() 
             end)
             
@@ -1508,17 +1449,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
                     TS:Create(sliderFill, TweenInfo.new(0.05), {Size = UDim2.new(percentage, 0, 1, 0)}):Play()
                     sliderValText.Text = tostring(math.floor(newValue))
                     
-                    if colorName == "R" then 
-                        valR = newValue 
-                    elseif colorName == "G" then 
-                        valG = newValue 
-                    else 
-                        valB = newValue 
-                    end 
+                    if colorName == "R" then valR = newValue elseif colorName == "G" then valG = newValue else valB = newValue end 
                 end
                 
                 local isDragging = false
-                
                 local function handleInput(input) 
                     local percentage = math.clamp((input.Position.X - sliderBtn.AbsolutePosition.X) / sliderBtn.AbsoluteSize.X, 0, 1)
                     local newValue = math.floor(percentage * 255)
@@ -1528,17 +1462,14 @@ function Oversimplified:CreateWindow(titleText, keyString)
                 
                 sliderBtn.InputBegan:Connect(function(input) 
                     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
-                        isDragging = true
-                        handleInput(input) 
+                        isDragging = true; handleInput(input) 
                     end 
                 end)
-                
                 UIS.InputEnded:Connect(function(input) 
                     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
                         isDragging = false 
                     end 
                 end)
-                
                 UIS.InputChanged:Connect(function(input) 
                     if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then 
                         handleInput(input) 
@@ -1552,9 +1483,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
             
             local CPO = {}
             function CPO:Set(newColor, newTitle) 
-                if newTitle then 
-                    Lb.Text = newTitle 
-                end
+                if newTitle then Lb.Text = newTitle end
                 if newColor then
                     sliderUpdaters["R"](newColor.R * 255)
                     sliderUpdaters["G"](newColor.G * 255)
