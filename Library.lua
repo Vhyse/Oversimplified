@@ -1,4 +1,4 @@
--- Oversimplified by Vhyse | v1.5
+-- Oversimplified by Vhyse | v1.6
 
 local Oversimplified = {
     Theme = {
@@ -25,9 +25,7 @@ local function GetCoreGui()
         if gethui then return gethui() end
         return game:GetService("CoreGui")
     end)
-    if success and result then
-        return result
-    end
+    if success and result then return result end
     return Players.LocalPlayer:WaitForChild("PlayerGui")
 end
 
@@ -161,6 +159,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
     
     local Theme = self.Theme
 
+    -- [[ PREMIUM CINEMATIC BACKDROP ]]
     local Backdrop = Instance.new("Frame", SG)
     Backdrop.Size = UDim2.new(1, 0, 1, 0)
     Backdrop.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -344,6 +343,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
     TC.Position = UDim2.new(0, 0, 0, 35)
     TC.BackgroundTransparency = 1
     TC.ScrollBarThickness = 0
+    TC.CanvasSize = UDim2.new(0, 0, 0, 0)
+    TC.AutomaticCanvasSize = Enum.AutomaticSize.Y
     
     local TL = Instance.new("UIListLayout", TC)
     TL.Padding = UDim.new(0, 5)
@@ -351,8 +352,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
     TL.SortOrder = Enum.SortOrder.LayoutOrder
     
     local TCPadding = Instance.new("UIPadding", TC)
-    TCPadding.PaddingTop = UDim.new(0, 2)
-    TCPadding.PaddingBottom = UDim.new(0, 2)
+    TCPPadding.PaddingTop = UDim.new(0, 2)
+    TCPPadding.PaddingBottom = UDim.new(0, 2)
     
     local ProfFrame = Instance.new("Frame", MF)
     ProfFrame.Size = UDim2.new(0, 130, 0, 40)
@@ -511,11 +512,11 @@ function Oversimplified:CreateWindow(titleText, keyString)
         KInput.Position = UDim2.new(0, 10, 0, 70)
         KInput.BackgroundColor3 = Theme.DarkerBg
         KInput.TextColor3 = Theme.Text
+        KInput.Text = ""
         KInput.PlaceholderText = "Enter Key Here..."
         KInput.Font = Enum.Font.Gotham
         KInput.TextSize = 12
         KInput.ClearTextOnFocus = false
-        KInput.Text = ""
         
         local kiCorner = Instance.new("UICorner", KInput)
         kiCorner.CornerRadius = UDim.new(0, 4)
@@ -1581,6 +1582,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
                 break
             end
         end
+
+        HT:CreateLabel("Hub Settings")
 
         HT:CreateToggle("Hub Background", Oversimplified.BackgroundVisible, function(state)
             Oversimplified.BackgroundVisible = state
