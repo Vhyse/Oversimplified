@@ -1,4 +1,4 @@
--- Oversimplified by Vhyse | v1.4
+-- Oversimplified by Vhyse | v1.5
 
 local Oversimplified = {
     Theme = {
@@ -25,64 +25,133 @@ local function GetCoreGui()
         if gethui then return gethui() end
         return game:GetService("CoreGui")
     end)
-    if success and result then return result end
+    if success and result then
+        return result
+    end
     return Players.LocalPlayer:WaitForChild("PlayerGui")
 end
 
 local CG = GetCoreGui()
 
 local function MakeDraggable(frame)
-    local dragging, dragInput, dragStart, startPos = false, nil, nil, nil
+    local dragging = false
+    local dragInput, dragStart, startPos
+
     frame.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging, dragStart, startPos = true, input.Position, frame.Position
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then dragging = false end
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
             end)
         end
     end)
+
     frame.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
             dragInput = input
         end
     end)
+
     local dragConn = UIS.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             local delta = input.Position - dragStart
             frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
-    frame.Destroying:Connect(function() if dragConn then dragConn:Disconnect() end end)
+    
+    frame.Destroying:Connect(function()
+        if dragConn then
+            dragConn:Disconnect()
+        end
+    end)
 end
 
 local function FadeUI(element, isVisible, duration)
     local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out)
+    
     local function tweenObject(obj)
         if not obj:GetAttribute("OS") then
             obj:SetAttribute("OS", true)
-            if obj:IsA("GuiObject") then obj:SetAttribute("OBg", obj.BackgroundTransparency) end
-            if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then obj:SetAttribute("OTx", obj.TextTransparency) end
-            if obj:IsA("UIStroke") then obj:SetAttribute("OSt", obj.Transparency) end
-            if obj:IsA("ScrollingFrame") then obj:SetAttribute("OSc", obj.ScrollBarImageTransparency) end
-            if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then obj:SetAttribute("OIm", obj.ImageTransparency) end
+            if obj:IsA("GuiObject") then
+                obj:SetAttribute("OBg", obj.BackgroundTransparency)
+            end
+            if obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+                obj:SetAttribute("OTx", obj.TextTransparency)
+            end
+            if obj:IsA("UIStroke") then
+                obj:SetAttribute("OSt", obj.Transparency)
+            end
+            if obj:IsA("ScrollingFrame") then
+                obj:SetAttribute("OSc", obj.ScrollBarImageTransparency)
+            end
+            if obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+                obj:SetAttribute("OIm", obj.ImageTransparency)
+            end
         end
+        
         local props = {}
-        if obj:GetAttribute("OBg") then props.BackgroundTransparency = isVisible and obj:GetAttribute("OBg") or 1 end
-        if obj:GetAttribute("OTx") then props.TextTransparency = isVisible and obj:GetAttribute("OTx") or 1 end
-        if obj:GetAttribute("OSt") then props.Transparency = isVisible and obj:GetAttribute("OSt") or 1 end
-        if obj:GetAttribute("OSc") then props.ScrollBarImageTransparency = isVisible and obj:GetAttribute("OSc") or 1 end
-        if obj:GetAttribute("OIm") then props.ImageTransparency = isVisible and obj:GetAttribute("OIm") or 1 end
+        if obj:GetAttribute("OBg") then
+            if isVisible then
+                props.BackgroundTransparency = obj:GetAttribute("OBg")
+            else
+                props.BackgroundTransparency = 1
+            end
+        end
+        if obj:GetAttribute("OTx") then
+            if isVisible then
+                props.TextTransparency = obj:GetAttribute("OTx")
+            else
+                props.TextTransparency = 1
+            end
+        end
+        if obj:GetAttribute("OSt") then
+            if isVisible then
+                props.Transparency = obj:GetAttribute("OSt")
+            else
+                props.Transparency = 1
+            end
+        end
+        if obj:GetAttribute("OSc") then
+            if isVisible then
+                props.ScrollBarImageTransparency = obj:GetAttribute("OSc")
+            else
+                props.ScrollBarImageTransparency = 1
+            end
+        end
+        if obj:GetAttribute("OIm") then
+            if isVisible then
+                props.ImageTransparency = obj:GetAttribute("OIm")
+            else
+                props.ImageTransparency = 1
+            end
+        end
         
         if next(props) then
-            if duration == 0 then for k, v in pairs(props) do obj[k] = v end else TS:Create(obj, tweenInfo, props):Play() end
+            if duration == 0 then
+                for k, v in pairs(props) do
+                    obj[k] = v
+                end
+            else
+                TS:Create(obj, tweenInfo, props):Play()
+            end
         end
     end
+    
     tweenObject(element)
-    for _, child in ipairs(element:GetDescendants()) do tweenObject(child) end
+    for _, child in ipairs(element:GetDescendants()) do
+        tweenObject(child)
+    end
 end
 
 function Oversimplified:CreateWindow(titleText, keyString)
-    if CG:FindFirstChild("OS_UI") then CG.OS_UI:Destroy() end
+    if CG:FindFirstChild("OS_UI") then
+        CG.OS_UI:Destroy()
+    end
 
     local SG = Instance.new("ScreenGui", CG)
     SG.Name = "OS_UI"
@@ -103,7 +172,8 @@ function Oversimplified:CreateWindow(titleText, keyString)
     local fadeVal = Instance.new("NumberValue", Backdrop)
     fadeVal.Value = 1
 
-    local particles, comets = {}, {}
+    local particles = {}
+    local comets = {}
     local maxParticles = 200 
     local isUIVisible = false
     local cam = Workspace.CurrentCamera
@@ -112,15 +182,31 @@ function Oversimplified:CreateWindow(titleText, keyString)
         local size = math.random(3, 6) 
         local p = Instance.new("Frame", Backdrop)
         p.Size = UDim2.new(0, size, 0, size)
+        
         local startX = math.random()
-        startY = startY or -20
+        if not startY then
+            startY = -20
+        end
+        
         p.Position = UDim2.new(startX, 0, 0, startY)
         p.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
         p.BorderSizePixel = 0
+        
         local baseTrans = math.random(30, 90) / 100
         p.BackgroundTransparency = baseTrans + fadeVal.Value
-        Instance.new("UICorner", p).CornerRadius = UDim.new(1, 0)
-        table.insert(particles, { obj = p, speed = math.random(100, 250), drift = math.random(-35, 35) / 1000, sinOff = math.random(0, 100), xBase = startX, y = startY, baseTrans = baseTrans })
+        
+        local corner = Instance.new("UICorner", p)
+        corner.CornerRadius = UDim.new(1, 0)
+        
+        table.insert(particles, {
+            obj = p,
+            speed = math.random(100, 250),
+            drift = math.random(-35, 35) / 1000, 
+            sinOff = math.random(0, 100),
+            xBase = startX,        
+            y = startY,
+            baseTrans = baseTrans
+        })
     end
 
     local function SpawnComet()
@@ -131,49 +217,87 @@ function Oversimplified:CreateWindow(titleText, keyString)
         p.BorderSizePixel = 0
         p.AnchorPoint = Vector2.new(1, 0.5) 
         p.BackgroundTransparency = fadeVal.Value
+        
         local startX = math.random(-400, cam.ViewportSize.X / 2)
         local startY = math.random(-300, 100)
         p.Position = UDim2.new(0, startX, 0, startY)
+        
         local grad = Instance.new("UIGradient", p)
-        grad.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.8, 0.8), NumberSequenceKeypoint.new(1, 0) })
-        table.insert(comets, { obj = p, x = startX, y = startY, speedX = math.random(1200, 2000), speedY = math.random(200, 500), gravity = math.random(400, 900) })
+        grad.Transparency = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 1),
+            NumberSequenceKeypoint.new(0.8, 0.8),
+            NumberSequenceKeypoint.new(1, 0)
+        })
+
+        table.insert(comets, {
+            obj = p,
+            x = startX,
+            y = startY,
+            speedX = math.random(1200, 2000),
+            speedY = math.random(200, 500),
+            gravity = math.random(400, 900)
+        })
     end
 
-    for i = 1, maxParticles do SpawnParticle(math.random(-100, math.max(cam.ViewportSize.Y, 1000))) end
+    for i = 1, maxParticles do
+        SpawnParticle(math.random(-100, math.max(cam.ViewportSize.Y, 1000)))
+    end
 
     local renderConnection = RS.RenderStepped:Connect(function(dt)
-        if isUIVisible then
-            local curTick, limitY, limitX, currentFade = tick(), cam.ViewportSize.Y + 50, cam.ViewportSize.X + 300, fadeVal.Value
-            
-            for i = #particles, 1, -1 do
-                local data = particles[i]
-                if data.obj.Parent then
-                    data.y = data.y + (data.speed * dt)
-                    local newX = data.xBase + (math.sin(curTick + data.sinOff) * data.drift)
-                    data.obj.Position = UDim2.new(newX, 0, 0, data.y)
-                    data.obj.BackgroundTransparency = data.baseTrans + currentFade
-                    if data.y > limitY then data.obj:Destroy(); table.remove(particles, i) end
-                else table.remove(particles, i) end
+        if not isUIVisible then return end
+        
+        local curTick = tick()
+        local limitY = cam.ViewportSize.Y + 50
+        local limitX = cam.ViewportSize.X + 300
+        local currentFade = fadeVal.Value
+        
+        for i = #particles, 1, -1 do
+            local data = particles[i]
+            if data.obj.Parent then
+                data.y = data.y + (data.speed * dt)
+                local newX = data.xBase + (math.sin(curTick + data.sinOff) * data.drift)
+                
+                data.obj.Position = UDim2.new(newX, 0, 0, data.y)
+                data.obj.BackgroundTransparency = data.baseTrans + currentFade
+                
+                if data.y > limitY then
+                    data.obj:Destroy()
+                    table.remove(particles, i)
+                end
+            else
+                table.remove(particles, i)
             end
-            
-            if self.BackgroundVisible and #particles < maxParticles then 
-                for _ = 1, math.random(1, 3) do SpawnParticle(-20) end
+        end
+        
+        if self.BackgroundVisible and #particles < maxParticles then 
+            local randomSpawnCount = math.random(1, 3)
+            for _ = 1, randomSpawnCount do
+                SpawnParticle(-20)
             end
+        end
 
-            for i = #comets, 1, -1 do
-                local data = comets[i]
-                if data.obj.Parent then
-                    data.speedY = data.speedY + (data.gravity * dt)
-                    data.x = data.x + (data.speedX * dt)
-                    data.y = data.y + (data.speedY * dt)
-                    data.obj.Position = UDim2.new(0, data.x, 0, data.y)
-                    data.obj.Rotation = math.deg(math.atan2(data.speedY, data.speedX))
-                    data.obj.BackgroundTransparency = currentFade
-                    if data.y > limitY + 250 or data.x > limitX then data.obj:Destroy(); table.remove(comets, i) end
-                else table.remove(comets, i) end
+        for i = #comets, 1, -1 do
+            local data = comets[i]
+            if data.obj.Parent then
+                data.speedY = data.speedY + (data.gravity * dt)
+                data.x = data.x + (data.speedX * dt)
+                data.y = data.y + (data.speedY * dt)
+                
+                data.obj.Position = UDim2.new(0, data.x, 0, data.y)
+                data.obj.Rotation = math.deg(math.atan2(data.speedY, data.speedX))
+                data.obj.BackgroundTransparency = currentFade
+                
+                if data.y > limitY + 250 or data.x > limitX then
+                    data.obj:Destroy()
+                    table.remove(comets, i)
+                end
+            else
+                table.remove(comets, i)
             end
+        end
 
-            if self.BackgroundVisible and math.random(1, 100) == 1 then SpawnComet() end
+        if self.BackgroundVisible and math.random(1, 100) == 1 then 
+            SpawnComet() 
         end
     end)
 
@@ -183,11 +307,14 @@ function Oversimplified:CreateWindow(titleText, keyString)
     MF.BackgroundColor3 = Theme.Bg
     MF.Visible = false
     MF.ClipsDescendants = true
-    Instance.new("UICorner", MF).CornerRadius = UDim.new(0, 6)
+    
+    local mfCorner = Instance.new("UICorner", MF)
+    mfCorner.CornerRadius = UDim.new(0, 6)
     
     local mfStroke = Instance.new("UIStroke", MF)
     mfStroke.Color = Theme.Border
     mfStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    
     MakeDraggable(MF)
     
     local Ti = Instance.new("TextLabel", MF)
@@ -217,17 +344,15 @@ function Oversimplified:CreateWindow(titleText, keyString)
     TC.Position = UDim2.new(0, 0, 0, 35)
     TC.BackgroundTransparency = 1
     TC.ScrollBarThickness = 0
-    TC.CanvasSize = UDim2.new(0, 0, 0, 0)
-    TC.AutomaticCanvasSize = Enum.AutomaticSize.Y
     
     local TL = Instance.new("UIListLayout", TC)
     TL.Padding = UDim.new(0, 5)
     TL.HorizontalAlignment = Enum.HorizontalAlignment.Center
     TL.SortOrder = Enum.SortOrder.LayoutOrder
     
-    local TCPPadding = Instance.new("UIPadding", TC)
-    TCPPadding.PaddingTop = UDim.new(0, 2)
-    TCPPadding.PaddingBottom = UDim.new(0, 2)
+    local TCPadding = Instance.new("UIPadding", TC)
+    TCPadding.PaddingTop = UDim.new(0, 2)
+    TCPadding.PaddingBottom = UDim.new(0, 2)
     
     local ProfFrame = Instance.new("Frame", MF)
     ProfFrame.Size = UDim2.new(0, 130, 0, 40)
@@ -245,8 +370,12 @@ function Oversimplified:CreateWindow(titleText, keyString)
     Avatar.Position = UDim2.new(0, 8, 0.5, -12)
     Avatar.BackgroundColor3 = Theme.DarkerBg
     Avatar.Image = "rbxthumb://type=AvatarHeadShot&id="..Players.LocalPlayer.UserId.."&w=150&h=150"
-    Instance.new("UICorner", Avatar).CornerRadius = UDim.new(1, 0)
-    Instance.new("UIStroke", Avatar).Color = Theme.Border
+    
+    local AvatarCorner = Instance.new("UICorner", Avatar)
+    AvatarCorner.CornerRadius = UDim.new(1, 0)
+    
+    local AvatarStroke = Instance.new("UIStroke", Avatar)
+    AvatarStroke.Color = Theme.Border
     
     local NameLbl = Instance.new("TextLabel", ProfFrame)
     NameLbl.Size = UDim2.new(1, -44, 1, 0)
@@ -279,13 +408,19 @@ function Oversimplified:CreateWindow(titleText, keyString)
     NL.HorizontalAlignment = Enum.HorizontalAlignment.Center
     NL.VerticalAlignment = Enum.VerticalAlignment.Bottom
     
-    local isVisibleState, isTweening, KeyFrame = true, false, nil
+    local isVisibleState = true
+    local isTweening = false
+    local KeyFrame = nil
 
     local function SetUIVisible(state)
         if isTweening then return end
         isTweening = true
         isVisibleState = state
-        local activeUI = (KeyFrame and KeyFrame.Parent) and KeyFrame or MF
+        
+        local activeUI = MF
+        if KeyFrame and KeyFrame.Parent then
+            activeUI = KeyFrame
+        end
         
         if isVisibleState then 
             isUIVisible = true
@@ -303,9 +438,16 @@ function Oversimplified:CreateWindow(titleText, keyString)
                 TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 1}):Play()
             end
             FadeUI(activeUI, false, 0.3)
-            task.delay(0.3, function() activeUI.Visible = false; Backdrop.Visible = false; isUIVisible = false end) 
+            task.delay(0.3, function() 
+                activeUI.Visible = false
+                Backdrop.Visible = false 
+                isUIVisible = false 
+            end) 
         end
-        task.delay(0.3, function() isTweening = false end)
+        
+        task.delay(0.3, function() 
+            isTweening = false 
+        end)
     end
 
     local function mkMac(parentFrame, color, xPos, callback) 
@@ -316,7 +458,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
         btn.Text = ""
         btn.BorderSizePixel = 0
         btn.AutoButtonColor = false
-        Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
+        
+        local corner = Instance.new("UICorner", btn)
+        corner.CornerRadius = UDim.new(1, 0)
+        
         btn.MouseButton1Click:Connect(callback) 
     end
 
@@ -327,8 +472,13 @@ function Oversimplified:CreateWindow(titleText, keyString)
         KeyFrame.BackgroundColor3 = Theme.Bg
         KeyFrame.Visible = false
         KeyFrame.ClipsDescendants = true
-        Instance.new("UICorner", KeyFrame).CornerRadius = UDim.new(0, 6)
-        Instance.new("UIStroke", KeyFrame).Color = Theme.Border
+        
+        local kfCorner = Instance.new("UICorner", KeyFrame)
+        kfCorner.CornerRadius = UDim.new(0, 6)
+        
+        local kfStroke = Instance.new("UIStroke", KeyFrame)
+        kfStroke.Color = Theme.Border
+        
         MakeDraggable(KeyFrame)
         
         local KTitle = Instance.new("TextLabel", KeyFrame)
@@ -361,13 +511,17 @@ function Oversimplified:CreateWindow(titleText, keyString)
         KInput.Position = UDim2.new(0, 10, 0, 70)
         KInput.BackgroundColor3 = Theme.DarkerBg
         KInput.TextColor3 = Theme.Text
-        KInput.Text = ""
         KInput.PlaceholderText = "Enter Key Here..."
         KInput.Font = Enum.Font.Gotham
         KInput.TextSize = 12
         KInput.ClearTextOnFocus = false
-        Instance.new("UICorner", KInput).CornerRadius = UDim.new(0, 4)
-        Instance.new("UIStroke", KInput).Color = Theme.Border
+        KInput.Text = ""
+        
+        local kiCorner = Instance.new("UICorner", KInput)
+        kiCorner.CornerRadius = UDim.new(0, 4)
+        
+        local kiStroke = Instance.new("UIStroke", KInput)
+        kiStroke.Color = Theme.Border
         
         local KBtn = Instance.new("TextButton", KeyFrame)
         KBtn.Size = UDim2.new(1, -20, 0, 30)
@@ -375,8 +529,12 @@ function Oversimplified:CreateWindow(titleText, keyString)
         KBtn.BackgroundColor3 = Theme.Inactive
         KBtn.Text = ""
         KBtn.AutoButtonColor = false
-        Instance.new("UICorner", KBtn).CornerRadius = UDim.new(0, 4)
-        Instance.new("UIStroke", KBtn).Color = Theme.Border
+        
+        local kbCorner = Instance.new("UICorner", KBtn)
+        kbCorner.CornerRadius = UDim.new(0, 4)
+        
+        local kbStroke = Instance.new("UIStroke", KBtn)
+        kbStroke.Color = Theme.Border
         
         local KBtnTxt = Instance.new("TextLabel", KBtn)
         KBtnTxt.Size = UDim2.new(1, 0, 1, 0)
@@ -389,7 +547,9 @@ function Oversimplified:CreateWindow(titleText, keyString)
         KBtn.MouseButton1Click:Connect(function()
             TS:Create(KBtn, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Active}):Play()
             TS:Create(KBtnTxt, TweenInfo.new(0.1), {TextColor3 = Theme.Bg}):Play()
+            
             task.wait(0.1)
+            
             TS:Create(KBtn, TweenInfo.new(0.1), {BackgroundColor3 = Theme.Inactive}):Play()
             TS:Create(KBtnTxt, TweenInfo.new(0.1), {TextColor3 = Theme.Text}):Play()
             
@@ -406,31 +566,50 @@ function Oversimplified:CreateWindow(titleText, keyString)
                 KInput.Text = ""
                 KInput.PlaceholderText = "Incorrect Key!"
                 TS:Create(KInput, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(150, 40, 40)}):Play()
-                task.delay(0.2, function() TS:Create(KInput, TweenInfo.new(0.2), {BackgroundColor3 = Theme.DarkerBg}):Play() end)
-                task.delay(1.5, function() if KInput then KInput.PlaceholderText = "Enter Key Here..." end end) 
+                
+                task.delay(0.2, function() 
+                    TS:Create(KInput, TweenInfo.new(0.2), {BackgroundColor3 = Theme.DarkerBg}):Play() 
+                end)
+                
+                task.delay(1.5, function() 
+                    if KInput then
+                        KInput.PlaceholderText = "Enter Key Here..." 
+                    end
+                end) 
             end
         end)
 
         local isKeyMin = false
-        mkMac(KeyFrame, Color3.fromRGB(0, 202, 78), -62, function() end)
+        mkMac(KeyFrame, Color3.fromRGB(0, 202, 78), -62, function() 
+        end)
+        
         mkMac(KeyFrame, Color3.fromRGB(255, 189, 68), -41, function()
             isKeyMin = not isKeyMin
             local targetSize = isKeyMin and UDim2.new(0, 350, 0, 30) or UDim2.new(0, 350, 0, 150)
             TS:Create(KeyFrame, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = targetSize}):Play()
         end)
-        mkMac(KeyFrame, Color3.fromRGB(255, 96, 92), -20, function() SetUIVisible(false) end)
+        
+        mkMac(KeyFrame, Color3.fromRGB(255, 96, 92), -20, function() 
+            SetUIVisible(false) 
+        end)
     end
 
     local isHubMin = false
-    mkMac(MF, Color3.fromRGB(0, 202, 78), -62, function() end)
+    mkMac(MF, Color3.fromRGB(0, 202, 78), -62, function() 
+    end)
+    
     mkMac(MF, Color3.fromRGB(255, 189, 68), -41, function()
         isHubMin = not isHubMin
         local targetSize = isHubMin and UDim2.new(0, 520, 0, 30) or UDim2.new(0, 520, 0, 380)
         TS:Create(MF, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = targetSize}):Play()
+        
         if isHubMin then 
             TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
             TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 1}):Play()
-            task.delay(0.3, function() Backdrop.Visible = false; isUIVisible = false end)
+            task.delay(0.3, function() 
+                Backdrop.Visible = false
+                isUIVisible = false 
+            end)
         else
             if self.BackgroundVisible then
                 Backdrop.Visible = true
@@ -440,45 +619,73 @@ function Oversimplified:CreateWindow(titleText, keyString)
             end
         end
     end)
-    mkMac(MF, Color3.fromRGB(255, 96, 92), -20, function() SetUIVisible(false) end)
+    
+    mkMac(MF, Color3.fromRGB(255, 96, 92), -20, function() 
+        SetUIVisible(false) 
+    end)
 
     task.delay(0.15, function() 
         SG.Enabled = true
-        local activeUI = KeyFrame or MF
+        local activeUI = MF
+        if KeyFrame then
+            activeUI = KeyFrame
+        end
+        
         isUIVisible = true
         if self.BackgroundVisible then
             Backdrop.Visible = true
             TS:Create(Backdrop, TweenInfo.new(0.4), {BackgroundTransparency = 0.35}):Play()
             TS:Create(fadeVal, TweenInfo.new(0.4), {Value = 0}):Play()
         end
+        
         FadeUI(activeUI, false, 0)
         activeUI.Visible = true
         FadeUI(activeUI, true, 0.4) 
     end)
     
     local toggleConnection = UIS.InputBegan:Connect(function(input, gameProcessed) 
-        if not gameProcessed and input.KeyCode == Enum.KeyCode.Insert then SetUIVisible(not isVisibleState) end 
+        if not gameProcessed and input.KeyCode == Enum.KeyCode.Insert then 
+            SetUIVisible(not isVisibleState) 
+        end 
     end)
     
-    local WO = { CT = nil }
+    local WO = {}
+    WO.CT = nil
+    
     local isSwitchingTab = false
-    local tabOrderIndex = 0
     
     function WO:Unload()
-        if renderConnection then renderConnection:Disconnect() end
-        if toggleConnection then toggleConnection:Disconnect() end
-        local activeUI = (KeyFrame and KeyFrame.Parent) and KeyFrame or MF
+        if renderConnection then 
+            renderConnection:Disconnect() 
+        end
+        if toggleConnection then 
+            toggleConnection:Disconnect() 
+        end
+        
+        local activeUI = MF
+        if KeyFrame and KeyFrame.Parent then
+            activeUI = KeyFrame
+        end
+        
         TS:Create(Backdrop, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
         TS:Create(fadeVal, TweenInfo.new(0.3), {Value = 1}):Play()
         FadeUI(activeUI, false, 0.3)
+        
         task.delay(0.3, function()
-            if SG then SG:Destroy() end
-            if NC then NC:Destroy() end
+            if SG then 
+                SG:Destroy() 
+            end
+            if NC then
+                NC:Destroy()
+            end
         end)
     end
 
     function WO:Notify(titleText, descText, duration) 
-        duration = duration or 3
+        if not duration then
+            duration = 3
+        end
+        
         local NW = Instance.new("Frame", NCHolder)
         NW.Size = UDim2.new(1, 0, 0, 60)
         NW.BackgroundTransparency = 1
@@ -487,7 +694,9 @@ function Oversimplified:CreateWindow(titleText, keyString)
         NM.Size = UDim2.new(1, 0, 1, 0)
         NM.Position = UDim2.new(1, 270, 0, 0)
         NM.BackgroundColor3 = Theme.Bg
-        Instance.new("UICorner", NM).CornerRadius = UDim.new(0, 6)
+        
+        local nmCorner = Instance.new("UICorner", NM)
+        nmCorner.CornerRadius = UDim.new(0, 6)
         
         local nmStroke = Instance.new("UIStroke", NM)
         nmStroke.Color = Theme.Border
@@ -515,6 +724,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
         ND.TextWrapped = true
         
         TS:Create(NM, TweenInfo.new(0.4, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Position = UDim2.new(0, 0, 0, 0)}):Play()
+        
         task.delay(duration, function() 
             local fadeOut = TS:Create(NM, TweenInfo.new(0.4, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {Position = UDim2.new(1, 270, 0, 0)})
             fadeOut:Play()
@@ -524,9 +734,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
     end
     
     function WO:CreateTab(tabName)
-        tabOrderIndex = tabOrderIndex + 1
         local TB = Instance.new("TextButton", TC)
-        TB.LayoutOrder = tabOrderIndex
         TB.Size = UDim2.new(1, -16, 0, 30)
         
         if self.CT == tabName then
@@ -541,7 +749,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
         TB.TextSize = 13
         TB.Text = tabName
         TB.AutoButtonColor = false
-        Instance.new("UICorner", TB).CornerRadius = UDim.new(0, 4)
+        
+        local tbCorner = Instance.new("UICorner", TB)
+        tbCorner.CornerRadius = UDim.new(0, 4)
+        
         local tbStroke = Instance.new("UIStroke", TB)
         tbStroke.Color = Theme.Border
         tbStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -572,7 +783,6 @@ function Oversimplified:CreateWindow(titleText, keyString)
                     TS:Create(btn, TweenInfo.new(0.2, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {BackgroundColor3 = Theme.Inactive, TextColor3 = Theme.Text}):Play() 
                 end 
             end
-            
             TS:Create(TB, TweenInfo.new(0.2, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {BackgroundColor3 = Theme.Active, TextColor3 = Theme.Bg}):Play()
             
             local activeScroll = nil
@@ -615,7 +825,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
             C.Size = UDim2.new(1, -14, 0, 0)
             C.AutomaticSize = Enum.AutomaticSize.Y
             C.BackgroundColor3 = Theme.Bg
-            Instance.new("UICorner", C).CornerRadius = UDim.new(0, 4)
+            
+            local cCorner = Instance.new("UICorner", C)
+            cCorner.CornerRadius = UDim.new(0, 4)
+            
             local cStroke = Instance.new("UIStroke", C)
             cStroke.Color = Theme.Border
             cStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -654,8 +867,12 @@ function Oversimplified:CreateWindow(titleText, keyString)
             
             local PO = {}
             function PO:Set(newTitle, newDesc) 
-                if newTitle then LT.Text = newTitle end
-                if newDesc then LD.Text = newDesc end 
+                if newTitle then 
+                    LT.Text = newTitle 
+                end
+                if newDesc then 
+                    LD.Text = newDesc 
+                end 
             end
             return PO
         end
@@ -673,7 +890,11 @@ function Oversimplified:CreateWindow(titleText, keyString)
             Lb.Text = labelText
             
             local LO = {}
-            function LO:Set(newText) if newText then Lb.Text = newText end end
+            function LO:Set(newText) 
+                if newText then 
+                    Lb.Text = newText 
+                end 
+            end
             return LO
         end
         
@@ -685,7 +906,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
             B.BackgroundColor3 = Theme.Inactive
             B.Text = ""
             B.AutoButtonColor = false
-            Instance.new("UICorner", B).CornerRadius = UDim.new(0, 4)
+            
+            local bCorner = Instance.new("UICorner", B)
+            bCorner.CornerRadius = UDim.new(0, 4)
+            
             local bStroke = Instance.new("UIStroke", B)
             bStroke.Color = Theme.Border
             bStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -708,7 +932,11 @@ function Oversimplified:CreateWindow(titleText, keyString)
             end)
             
             local BO = {}
-            function BO:Set(newText) if newText then Lb.Text = newText end end
+            function BO:Set(newText) 
+                if newText then
+                    Lb.Text = newText 
+                end
+            end
             return BO
         end
         
@@ -720,7 +948,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
             C.BackgroundColor3 = Theme.Bg
             C.Text = ""
             C.AutoButtonColor = false
-            Instance.new("UICorner", C).CornerRadius = UDim.new(0, 4)
+            
+            local cCorner = Instance.new("UICorner", C)
+            cCorner.CornerRadius = UDim.new(0, 4)
+            
             local cStroke = Instance.new("UIStroke", C)
             cStroke.Color = Theme.Border
             cStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -738,8 +969,14 @@ function Oversimplified:CreateWindow(titleText, keyString)
             local Tr = Instance.new("Frame", C)
             Tr.Size = UDim2.new(0, 36, 0, 18)
             Tr.Position = UDim2.new(1, -46, 0.5, -9)
-            Tr.BackgroundColor3 = defaultState and Theme.Active or Theme.Inactive
-            Instance.new("UICorner", Tr).CornerRadius = UDim.new(1, 0)
+            if defaultState then
+                Tr.BackgroundColor3 = Theme.Active
+            else
+                Tr.BackgroundColor3 = Theme.Inactive
+            end
+            
+            local trCorner = Instance.new("UICorner", Tr)
+            trCorner.CornerRadius = UDim.new(1, 0)
             
             local Ci = Instance.new("Frame", Tr)
             Ci.Size = UDim2.new(0, 14, 0, 14)
@@ -750,25 +987,36 @@ function Oversimplified:CreateWindow(titleText, keyString)
                 Ci.Position = UDim2.new(0, 2, 0.5, -7)
                 Ci.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             end
-            Instance.new("UICorner", Ci).CornerRadius = UDim.new(1, 0)
+            
+            local ciCorner = Instance.new("UICorner", Ci)
+            ciCorner.CornerRadius = UDim.new(1, 0)
             
             local currentState = defaultState
+            
             local function updateToggle(newState) 
                 currentState = newState
                 callback(currentState)
+                
                 local targetColor = currentState and Theme.Active or Theme.Inactive
                 local targetPos = currentState and UDim2.new(1, -16, 0.5, -7) or UDim2.new(0, 2, 0.5, -7)
                 local targetDotColor = currentState and Theme.Bg or Color3.fromRGB(255, 255, 255)
+                
                 TS:Create(Tr, TweenInfo.new(0.2), {BackgroundColor3 = targetColor}):Play()
                 TS:Create(Ci, TweenInfo.new(0.2), {Position = targetPos, BackgroundColor3 = targetDotColor}):Play() 
             end
             
-            C.MouseButton1Click:Connect(function() updateToggle(not currentState) end)
+            C.MouseButton1Click:Connect(function() 
+                updateToggle(not currentState) 
+            end)
             
             local TO = {}
             function TO:Set(newState, newTitle) 
-                if newTitle then Lb.Text = newTitle end
-                if newState ~= nil and newState ~= currentState then updateToggle(newState) end 
+                if newTitle then 
+                    Lb.Text = newTitle 
+                end
+                if newState ~= nil and newState ~= currentState then 
+                    updateToggle(newState) 
+                end 
             end
             return TO
         end
@@ -779,7 +1027,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
             C.LayoutOrder = orderIndex
             C.Size = UDim2.new(1, -14, 0, 50)
             C.BackgroundColor3 = Theme.Bg
-            Instance.new("UICorner", C).CornerRadius = UDim.new(0, 4)
+            
+            local cCorner = Instance.new("UICorner", C)
+            cCorner.CornerRadius = UDim.new(0, 4)
+            
             local cStroke = Instance.new("UIStroke", C)
             cStroke.Color = Theme.Border
             cStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -810,15 +1061,20 @@ function Oversimplified:CreateWindow(titleText, keyString)
             SB.BackgroundColor3 = Theme.SliderBg
             SB.Text = ""
             SB.AutoButtonColor = false
-            Instance.new("UICorner", SB).CornerRadius = UDim.new(1, 0)
+            
+            local sbCorner = Instance.new("UICorner", SB)
+            sbCorner.CornerRadius = UDim.new(1, 0)
             
             local SF = Instance.new("Frame", SB)
             local startingScale = math.clamp((defaultVal - minVal) / (maxVal - minVal), 0, 1)
             SF.Size = UDim2.new(startingScale, 0, 1, 0)
             SF.BackgroundColor3 = Theme.Active
-            Instance.new("UICorner", SF).CornerRadius = UDim.new(1, 0)
+            
+            local sfCorner = Instance.new("UICorner", SF)
+            sfCorner.CornerRadius = UDim.new(1, 0)
             
             local isDragging = false
+            
             local function updateSliderValue(val) 
                 val = math.clamp(val, minVal, maxVal)
                 local percentage = (val - minVal) / (maxVal - minVal)
@@ -834,17 +1090,30 @@ function Oversimplified:CreateWindow(titleText, keyString)
             end
             
             SB.InputBegan:Connect(function(input) 
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDragging = true; handleInput(input) end 
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
+                    isDragging = true
+                    handleInput(input) 
+                end 
             end)
+            
             UIS.InputEnded:Connect(function(input) 
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDragging = false end 
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
+                    isDragging = false 
+                end 
             end)
+            
             UIS.InputChanged:Connect(function(input) 
-                if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then handleInput(input) end 
+                if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then 
+                    handleInput(input) 
+                end 
             end)
             
             local SO = {}
-            function SO:Set(val) if val then updateSliderValue(val) end end
+            function SO:Set(val) 
+                if val then
+                    updateSliderValue(val) 
+                end
+            end
             return SO
         end
         
@@ -854,7 +1123,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
             C.LayoutOrder = orderIndex
             C.Size = UDim2.new(1, -14, 0, 34)
             C.BackgroundColor3 = Theme.Bg
-            Instance.new("UICorner", C).CornerRadius = UDim.new(0, 4)
+            
+            local cCorner = Instance.new("UICorner", C)
+            cCorner.CornerRadius = UDim.new(0, 4)
+            
             local cStroke = Instance.new("UIStroke", C)
             cStroke.Color = Theme.Border
             cStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -879,20 +1151,29 @@ function Oversimplified:CreateWindow(titleText, keyString)
             IB.Font = Enum.Font.Gotham
             IB.TextSize = 12
             IB.ClearTextOnFocus = false
-            Instance.new("UICorner", IB).CornerRadius = UDim.new(0, 4)
+            
+            local ibCorner = Instance.new("UICorner", IB)
+            ibCorner.CornerRadius = UDim.new(0, 4)
+            
             local ibStroke = Instance.new("UIStroke", IB)
             ibStroke.Color = Theme.Border
             ibStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             
             IB.FocusLost:Connect(function() 
-                callback(IB.Text) 
-                if clearOnLeave then IB.Text = "" end
+                callback(IB.Text)
+                if clearOnLeave then
+                    IB.Text = ""
+                end
             end)
             
             local IO = {}
             function IO:Set(newText, newTitle) 
-                if newTitle then Lb.Text = newTitle end
-                if newText then IB.Text = newText end 
+                if newTitle then 
+                    Lb.Text = newTitle 
+                end
+                if newText then 
+                    IB.Text = newText 
+                end 
             end
             return IO
         end
@@ -903,7 +1184,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
             C.LayoutOrder = orderIndex
             C.Size = UDim2.new(1, -14, 0, 34)
             C.BackgroundColor3 = Theme.Bg
-            Instance.new("UICorner", C).CornerRadius = UDim.new(0, 4)
+            
+            local cCorner = Instance.new("UICorner", C)
+            cCorner.CornerRadius = UDim.new(0, 4)
+            
             local cStroke = Instance.new("UIStroke", C)
             cStroke.Color = Theme.Border
             cStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -918,19 +1202,27 @@ function Oversimplified:CreateWindow(titleText, keyString)
             Lb.TextSize = 13
             Lb.TextXAlignment = Enum.TextXAlignment.Left
             
-            local startText = defaultKey and defaultKey.Name or "None"
+            local startText = "None"
+            if defaultKey then
+                startText = defaultKey.Name
+            end
+            
             local BB = Instance.new("TextButton", C)
             BB.Size = UDim2.new(0, 80, 0, 24)
             BB.Position = UDim2.new(1, -90, 0.5, -12)
             BB.BackgroundColor3 = Theme.DarkerBg
             BB.Text = ""
             BB.AutoButtonColor = false
-            Instance.new("UICorner", BB).CornerRadius = UDim.new(0, 4)
+            
+            local bbCorner = Instance.new("UICorner", BB)
+            bbCorner.CornerRadius = UDim.new(0, 4)
+            
             local bbStroke = Instance.new("UIStroke", BB)
             bbStroke.Color = Theme.Border
             bbStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             
-            local currentKey, listening = defaultKey, false 
+            local currentKey = defaultKey
+            local listening = false 
             
             local Txt = Instance.new("TextLabel", BB)
             Txt.Size = UDim2.new(1, 0, 1, 0)
@@ -948,9 +1240,11 @@ function Oversimplified:CreateWindow(titleText, keyString)
                     if input.UserInputType == Enum.UserInputType.Keyboard then 
                         listening = false
                         if input.KeyCode == Enum.KeyCode.Backspace then 
-                            currentKey = nil; Txt.Text = "None" 
+                            currentKey = nil
+                            Txt.Text = "None" 
                         else 
-                            currentKey = input.KeyCode; Txt.Text = currentKey.Name 
+                            currentKey = input.KeyCode
+                            Txt.Text = currentKey.Name 
                         end
                         connection:Disconnect() 
                     end 
@@ -958,13 +1252,19 @@ function Oversimplified:CreateWindow(titleText, keyString)
             end)
             
             UIS.InputBegan:Connect(function(input, gameProcessed) 
-                if not listening and not gameProcessed and currentKey and input.KeyCode == currentKey then callback(currentKey) end 
+                if not listening and not gameProcessed and currentKey and input.KeyCode == currentKey then 
+                    callback(currentKey) 
+                end 
             end)
             
             local KO = {}
             function KO:Set(newKey) 
                 currentKey = newKey
-                Txt.Text = newKey and newKey.Name or "None"
+                if newKey then
+                    Txt.Text = newKey.Name
+                else
+                    Txt.Text = "None" 
+                end
             end
             return KO
         end
@@ -976,7 +1276,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
             C.Size = UDim2.new(1, -14, 0, 34)
             C.BackgroundColor3 = Theme.Bg
             C.ClipsDescendants = true
-            Instance.new("UICorner", C).CornerRadius = UDim.new(0, 4)
+            
+            local cCorner = Instance.new("UICorner", C)
+            cCorner.CornerRadius = UDim.new(0, 4)
+            
             local cStroke = Instance.new("UIStroke", C)
             cStroke.Color = Theme.Border
             cStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -1020,21 +1323,37 @@ function Oversimplified:CreateWindow(titleText, keyString)
             OC.Size = UDim2.new(1, -20, 0, 0)
             OC.Position = UDim2.new(0, 10, 0, 34)
             OC.BackgroundTransparency = 1
+            
             local ocLayout = Instance.new("UIListLayout", OC)
             ocLayout.Padding = UDim.new(0, 2)
             
             local isOpen = false
+            
             local function toggleDropdown() 
                 isOpen = not isOpen
-                Ic.Text = isOpen and "-" or "+"
-                local targetHeight = isOpen and (34 + (#optionsArray * 26) + 5) or 34
+                if isOpen then
+                    Ic.Text = "-"
+                else
+                    Ic.Text = "+"
+                end
+                
+                local targetHeight = 34
+                if isOpen then
+                    targetHeight = 34 + (#optionsArray * 26) + 5
+                end
+                
                 TS:Create(C, TweenInfo.new(0.2), {Size = UDim2.new(1, -14, 0, targetHeight)}):Play() 
             end
             
             DB.MouseButton1Click:Connect(toggleDropdown)
             
             local function buildOptions(arr) 
-                for _, child in ipairs(OC:GetChildren()) do if child:IsA("TextButton") then child:Destroy() end end
+                for _, child in ipairs(OC:GetChildren()) do 
+                    if child:IsA("TextButton") then 
+                        child:Destroy() 
+                    end 
+                end
+                
                 for _, optionStr in ipairs(arr) do 
                     local OB = Instance.new("TextButton", OC)
                     OB.Size = UDim2.new(1, 0, 0, 24)
@@ -1044,7 +1363,9 @@ function Oversimplified:CreateWindow(titleText, keyString)
                     OB.TextSize = 12
                     OB.Text = optionStr
                     OB.AutoButtonColor = false
-                    Instance.new("UICorner", OB).CornerRadius = UDim.new(0, 4)
+                    
+                    local obCorner = Instance.new("UICorner", OB)
+                    obCorner.CornerRadius = UDim.new(0, 4)
                     
                     OB.MouseButton1Click:Connect(function() 
                         SL.Text = optionStr
@@ -1058,12 +1379,17 @@ function Oversimplified:CreateWindow(titleText, keyString)
             
             local DO = {}
             function DO:Set(newSelection) 
-                if newSelection then SL.Text = newSelection; callback(newSelection) end
+                if newSelection then
+                    SL.Text = newSelection
+                    callback(newSelection) 
+                end
             end
             function DO:Refresh(newArray, newDefault) 
                 optionsArray = newArray
                 buildOptions(optionsArray)
-                if newDefault then DO:Set(newDefault) end
+                if newDefault then 
+                    DO:Set(newDefault) 
+                end
                 if isOpen then 
                     local targetHeight = 34 + (#optionsArray * 26) + 5
                     TS:Create(C, TweenInfo.new(0.2), {Size = UDim2.new(1, -14, 0, targetHeight)}):Play() 
@@ -1079,7 +1405,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
             C.Size = UDim2.new(1, -14, 0, 34)
             C.BackgroundColor3 = Theme.Bg
             C.ClipsDescendants = true
-            Instance.new("UICorner", C).CornerRadius = UDim.new(0, 4)
+            
+            local cCorner = Instance.new("UICorner", C)
+            cCorner.CornerRadius = UDim.new(0, 4)
+            
             local cStroke = Instance.new("UIStroke", C)
             cStroke.Color = Theme.Border
             cStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -1104,7 +1433,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
             CP.Size = UDim2.new(0, 40, 0, 16)
             CP.Position = UDim2.new(1, -50, 0.5, -8)
             CP.BackgroundColor3 = defaultColor
-            Instance.new("UICorner", CP).CornerRadius = UDim.new(0, 4)
+            
+            local cpCorner = Instance.new("UICorner", CP)
+            cpCorner.CornerRadius = UDim.new(0, 4)
+            
             local cpStroke = Instance.new("UIStroke", CP)
             cpStroke.Color = Theme.Border
             cpStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -1113,16 +1445,23 @@ function Oversimplified:CreateWindow(titleText, keyString)
             SF.Size = UDim2.new(1, -20, 0, 80)
             SF.Position = UDim2.new(0, 10, 0, 34)
             SF.BackgroundTransparency = 1
+            
             local sfLayout = Instance.new("UIListLayout", SF)
             sfLayout.Padding = UDim.new(0, 5)
             
             local isOpen = false
             PB.MouseButton1Click:Connect(function() 
                 isOpen = not isOpen
-                TS:Create(C, TweenInfo.new(0.2), {Size = UDim2.new(1, -14, 0, isOpen and 120 or 34)}):Play() 
+                local targetHeight = 34
+                if isOpen then
+                    targetHeight = 120
+                end
+                TS:Create(C, TweenInfo.new(0.2), {Size = UDim2.new(1, -14, 0, targetHeight)}):Play() 
             end)
             
-            local valR, valG, valB = defaultColor.R * 255, defaultColor.G * 255, defaultColor.B * 255
+            local valR = defaultColor.R * 255
+            local valG = defaultColor.G * 255
+            local valB = defaultColor.B * 255
             
             local function updateColor() 
                 local newC = Color3.fromRGB(valR, valG, valB)
@@ -1131,6 +1470,7 @@ function Oversimplified:CreateWindow(titleText, keyString)
             end
             
             local sliderUpdaters = {}
+            
             local function createColorSlider(colorName, startValue, themeColor)
                 local sliderFrame = Instance.new("Frame", SF)
                 sliderFrame.Size = UDim2.new(1, 0, 0, 20)
@@ -1142,12 +1482,16 @@ function Oversimplified:CreateWindow(titleText, keyString)
                 sliderBtn.BackgroundColor3 = Theme.SliderBg
                 sliderBtn.Text = ""
                 sliderBtn.AutoButtonColor = false
-                Instance.new("UICorner", sliderBtn).CornerRadius = UDim.new(1, 0)
+                
+                local sbCorner = Instance.new("UICorner", sliderBtn)
+                sbCorner.CornerRadius = UDim.new(1, 0)
                 
                 local sliderFill = Instance.new("Frame", sliderBtn)
                 sliderFill.Size = UDim2.new(startValue / 255, 0, 1, 0)
                 sliderFill.BackgroundColor3 = themeColor
-                Instance.new("UICorner", sliderFill).CornerRadius = UDim.new(1, 0)
+                
+                local sfCorner = Instance.new("UICorner", sliderFill)
+                sfCorner.CornerRadius = UDim.new(1, 0)
                 
                 local sliderValText = Instance.new("TextLabel", sliderFrame)
                 sliderValText.Size = UDim2.new(0, 25, 1, 0)
@@ -1162,10 +1506,18 @@ function Oversimplified:CreateWindow(titleText, keyString)
                     local percentage = newValue / 255
                     TS:Create(sliderFill, TweenInfo.new(0.05), {Size = UDim2.new(percentage, 0, 1, 0)}):Play()
                     sliderValText.Text = tostring(math.floor(newValue))
-                    if colorName == "R" then valR = newValue elseif colorName == "G" then valG = newValue else valB = newValue end 
+                    
+                    if colorName == "R" then 
+                        valR = newValue 
+                    elseif colorName == "G" then 
+                        valG = newValue 
+                    else 
+                        valB = newValue 
+                    end 
                 end
                 
                 local isDragging = false
+                
                 local function handleInput(input) 
                     local percentage = math.clamp((input.Position.X - sliderBtn.AbsolutePosition.X) / sliderBtn.AbsoluteSize.X, 0, 1)
                     local newValue = math.floor(percentage * 255)
@@ -1174,13 +1526,22 @@ function Oversimplified:CreateWindow(titleText, keyString)
                 end
                 
                 sliderBtn.InputBegan:Connect(function(input) 
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDragging = true; handleInput(input) end 
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
+                        isDragging = true
+                        handleInput(input) 
+                    end 
                 end)
+                
                 UIS.InputEnded:Connect(function(input) 
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then isDragging = false end 
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then 
+                        isDragging = false 
+                    end 
                 end)
+                
                 UIS.InputChanged:Connect(function(input) 
-                    if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then handleInput(input) end 
+                    if isDragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then 
+                        handleInput(input) 
+                    end 
                 end)
             end
             
@@ -1190,7 +1551,9 @@ function Oversimplified:CreateWindow(titleText, keyString)
             
             local CPO = {}
             function CPO:Set(newColor, newTitle) 
-                if newTitle then Lb.Text = newTitle end
+                if newTitle then 
+                    Lb.Text = newTitle 
+                end
                 if newColor then
                     sliderUpdaters["R"](newColor.R * 255)
                     sliderUpdaters["G"](newColor.G * 255)
@@ -1204,7 +1567,10 @@ function Oversimplified:CreateWindow(titleText, keyString)
     end
 
     function WO:AddHubSettingsTab()
-        if Oversimplified.HubSettingsCreated then return nil end
+        if Oversimplified.HubSettingsCreated then
+            warn("[Oversimplified UI] The Hub Settings Tab can only be created once.")
+            return nil
+        end
         Oversimplified.HubSettingsCreated = true
 
         local HT = self:CreateTab("Hub Settings")
@@ -1249,4 +1615,4 @@ function Oversimplified:CreateWindow(titleText, keyString)
     return WO
 end
 
-return Oversimplifiedfied
+return Oversimplified
